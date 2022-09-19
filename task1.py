@@ -20,7 +20,7 @@ labels_to_category = ['address', 'property_name', 'property_type', 'tenure', 'fl
 trainX = remove_columns(trainX, col_labels=labels_to_remove)
 testX = remove_columns(testX, col_labels=labels_to_remove)
 
-## Currently NaN values also become their own category. Need ot handle that later
+## Currently NaN values also become their own category. Need to handle that later
 trainX, category_to_int_dict = convert_to_categorical(trainX, col_labels=labels_to_category)
 testX, _ = convert_to_categorical(testX, col_labels=labels_to_category, category_to_int_dict=category_to_int_dict)
 
