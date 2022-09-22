@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 
 def read_csv(filename, ylabel=None):
@@ -36,3 +37,13 @@ def convert_to_continuous(df, col_labels=[], max_min_dict={}):
         df[col] = (df[col] - min)/(max - min)
 
     return df, max_min_dict
+
+def create_k_fold_validation(X, Y, k=10):
+    chunk_size = len(X)//k
+    for ite in range(k):
+        trainX = np.concatenate((X[:ite*chunk_size], X[(ite+1)*chunk_size:]), axis=0)
+        trainY = np.concatenate((Y[:ite*chunk_size], Y[(ite+1)*chunk_size:]), axis=0)
+        valX = X[ite*chunk_size:(ite+1)*chunk_size]
+        valY = Y[ite*chunk_size:(ite+1)*chunk_size]
+
+        yield trainX, trainY, valX, valY

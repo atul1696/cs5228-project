@@ -1,9 +1,12 @@
 import numpy as np
 import pandas as pd
 from sklearn.tree import DecisionTreeRegressor
+from sklearn.metrics import mean_squared_error
+from sklearn.utils import shuffle
 
 from dataloader import read_csv
 from dataloader import remove_columns, convert_to_categorical, convert_to_continuous
+from dataloader import create_k_fold_validation
 
 from submission import create_submission
 
@@ -31,6 +34,21 @@ testX = testX.fillna(trainX.mean())
 assert not trainY.isnull().values.any() # Just a check to make sure all labels are available
 
 trainX, trainY, testX = trainX.astype(float).to_numpy(), trainY.astype(float).to_numpy(), testX.astype(float).to_numpy()
+trainX, trainY = shuffle(trainX, trainY, random_state=0)
+
+kfold_iterator = create_k_fold_validation(trainX, trainY)
+
+rmse_arr = []
+for (X, Y, Xval, Yval) in kfold_iterator:
+    regressor = DecisionTreeRegressor(random_state=0)
+    regressor = regressor.fit(X, Y)
+    Ypred = regressor.predict(Xval)
+    rmse = mean_squared_error(Yval, Ypred, squared=False)
+    rmse_arr.append(rmse)
+
+print("Mean K-Fold Validation Error : ", np.mean(rmse_arr))
+print("Median K-Fold Validation Error : ", np.median(rmse_arr))
+print("Maximum K-Fold Validation Error : ", np.max(rmse_arr))
 
 regressor = DecisionTreeRegressor(random_state=0)
 regressor = regressor.fit(trainX, trainY)
