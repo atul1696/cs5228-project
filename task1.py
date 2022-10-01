@@ -30,7 +30,7 @@ labels_to_category = ['address', 'property_name', 'property_type', 'tenure', 'fu
 trainX, category_to_int_dict = convert_to_categorical(trainX, col_labels=labels_to_category)
 testX, _ = convert_to_categorical(testX, col_labels=labels_to_category, category_to_int_dict=category_to_int_dict)
 
-# These categories do not contain any NaN values : address, property_name, property_type, furnishing, lat, lng
+# These categories do not contain any NaN values : address, property_name, property_type, furnishing, lat, lng, size_sqft
 # Handling NaN values : tenure - Let the NaNs be their own category
 
 # Handling NaN values : subzone and planning_area - Use k-nearest neighbors and lat/lng values to find their subzone and planning_area
@@ -40,8 +40,10 @@ testX, _ = convert_to_categorical(testX, col_labels=labels_to_category, category
 # exit()
 # testX, _ = fill_lat_lng_knn(testX, col_label='subzone', knngraph=knngraph_subzone)
 
-# Handling NaN values : built_year, num_beds, num_baths, size_sqft, total_num_units
-
+# Handling NaN values : built_year - Just provide them with the average value
+# Handling NaN values : num_beds - Just provide them with the average value
+# Handling NaN values : num_baths - Just provide them with the average value
+# Handling NaN values : total_num_units - Just provide them with the average value
 
 # labels_to_continuous = ['built_year', 'num_beds', 'num_baths', 'size_sqft', 'total_num_units', 'lat', 'lng'] # Not required right now
 
