@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import math
 
 def read_csv(filename, ylabel=None):
     df = pd.read_csv(filename)
@@ -37,6 +38,40 @@ def convert_to_continuous(df, col_labels=[], max_min_dict={}):
         df[col] = (df[col] - min)/(max - min)
 
     return df, max_min_dict
+
+def extract_unit_types(df):
+
+    def extract_units_arr(inp_str):
+        if isinstance(inp_str, float) and math.isnan(inp_str):
+            return []
+
+        raw_unit_types_arr = inp_str.split(',')
+        unit_types_arr = []
+        for ele in raw_unit_types_arr:
+            if ele=='studio':
+                unit_types_arr.append(ele)
+                continue
+
+            ele = ele.replace("br", "")
+            unit_types_arr.append(int(ele))
+
+        return unit_types_arr
+
+    df['available_unit_types'] = df['available_unit_types'].apply(lambda x: extract_units_arr(x))
+
+    def check_membership(inp, list):
+        if inp in list:
+            return True
+        else:
+            return False
+
+    for i in range(1, 11):
+        column_name = str(i) + ' br'
+        df[column_name] = df['available_unit_types'].apply(lambda x: check_membership(i, x))
+    df['studio'] = df['available_unit_types'].apply(lambda x: check_membership('studio', x))
+
+    df = df.drop(['available_unit_types'], axis=1)
+    return df
 
 def create_k_fold_validation(X, Y, k=10):
     chunk_size = len(X)//k

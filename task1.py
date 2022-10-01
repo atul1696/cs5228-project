@@ -6,6 +6,7 @@ from sklearn.utils import shuffle
 
 from dataloader import read_csv
 from dataloader import remove_columns, convert_to_categorical, convert_to_continuous
+from dataloader import extract_unit_types
 from dataloader import create_k_fold_validation
 
 from submission import create_submission
@@ -13,12 +14,18 @@ from submission import create_submission
 trainX, trainY = read_csv('data/train.csv', ylabel='price')
 testX, _ = read_csv('data/test.csv')
 
-labels_to_remove = ['listing_id', 'title', 'property_details_url', 'elevation', 'available_unit_types']
+labels_to_remove = ['listing_id', 'title', 'property_details_url', 'elevation']
+# TODO Suggestion : Can we extract some information from the title?
+# TODO Suggestion : Can we mine some information from the url? Probably not, since the URLs lead to 404 error in most cases
+# elevation is simply 0 for all entries
+
+trainX = extract_unit_types(trainX)
+testX = extract_unit_types(testX)
+
 labels_to_category = ['address', 'property_name', 'property_type', 'tenure', 'floor_level', 'furnishing', 'subzone', 'planning_area']
 # labels_to_continuous = ['built_year', 'num_beds', 'num_baths', 'size_sqft', 'total_num_units', 'lat', 'lng'] # Not required right now
 
 # listing_id, title and property_details_url are unique for every entry
-# elevation is simply 0 for all entries
 # available_unit_types removed for now as it will require complicated processing
 trainX = remove_columns(trainX, col_labels=labels_to_remove)
 testX = remove_columns(testX, col_labels=labels_to_remove)
@@ -36,7 +43,7 @@ assert not trainY.isnull().values.any() # Just a check to make sure all labels a
 trainX, trainY, testX = trainX.astype(float).to_numpy(), trainY.astype(float).to_numpy(), testX.astype(float).to_numpy()
 trainX, trainY = shuffle(trainX, trainY, random_state=0)
 
-kfold_iterator = create_k_fold_validation(trainX, trainY)
+kfold_iterator = create_k_fold_validation(trainX, trainY, k=10)
 
 rmse_arr = []
 for (X, Y, Xval, Yval) in kfold_iterator:
