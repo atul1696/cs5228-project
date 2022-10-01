@@ -39,6 +39,13 @@ def convert_to_continuous(df, col_labels=[], max_min_dict={}):
 
     return df, max_min_dict
 
+def convert_to_lowercase(df):
+    for col in df.columns:
+        if df[col].dtype == object:
+            df[col] = df[col].str.lower()
+
+    return df
+
 def extract_unit_types(df):
 
     def extract_units_arr(inp_str):

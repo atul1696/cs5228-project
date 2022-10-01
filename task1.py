@@ -5,7 +5,7 @@ from sklearn.metrics import mean_squared_error
 from sklearn.utils import shuffle
 
 from dataloader import read_csv
-from dataloader import remove_columns, convert_to_categorical, convert_to_continuous
+from dataloader import remove_columns, convert_to_categorical, convert_to_continuous, convert_to_lowercase
 from dataloader import extract_unit_types
 from dataloader import create_k_fold_validation
 
@@ -14,25 +14,25 @@ from submission import create_submission
 trainX, trainY = read_csv('data/train.csv', ylabel='price')
 testX, _ = read_csv('data/test.csv')
 
+# Convert all strings to lowercase for easy processing later
+trainX, testX = convert_to_lowercase(trainX), convert_to_lowercase(testX)
+
 labels_to_remove = ['listing_id', 'title', 'property_details_url', 'elevation']
 # TODO Suggestion : Can we extract some information from the title?
 # TODO Suggestion : Can we mine some information from the url? Probably not, since the URLs lead to 404 error in most cases
 # elevation is simply 0 for all entries
-
-trainX = extract_unit_types(trainX)
-testX = extract_unit_types(testX)
+trainX, testX = remove_columns(trainX, col_labels=labels_to_remove), remove_columns(testX, col_labels=labels_to_remove)
 
 labels_to_category = ['address', 'property_name', 'property_type', 'tenure', 'floor_level', 'furnishing', 'subzone', 'planning_area']
-# labels_to_continuous = ['built_year', 'num_beds', 'num_baths', 'size_sqft', 'total_num_units', 'lat', 'lng'] # Not required right now
-
-# listing_id, title and property_details_url are unique for every entry
-# available_unit_types removed for now as it will require complicated processing
-trainX = remove_columns(trainX, col_labels=labels_to_remove)
-testX = remove_columns(testX, col_labels=labels_to_remove)
-
-## Currently NaN values also become their own category. Need to handle that later
+# TODO : property_type also contains information about types of available units, which needs to separately extracted
+# TODO : Currently NaN values also become their own category. Need to handle that later
 trainX, category_to_int_dict = convert_to_categorical(trainX, col_labels=labels_to_category)
 testX, _ = convert_to_categorical(testX, col_labels=labels_to_category, category_to_int_dict=category_to_int_dict)
+
+# labels_to_continuous = ['built_year', 'num_beds', 'num_baths', 'size_sqft', 'total_num_units', 'lat', 'lng'] # Not required right now
+
+# Handling available_unit_types
+trainX, testX = extract_unit_types(trainX), extract_unit_types(testX)
 
 ## TODO : Temporary handling of missing entries and NaNs!! Needs to be revisited
 trainX = trainX.fillna(trainX.mean())
