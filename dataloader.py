@@ -2,6 +2,8 @@ import numpy as np
 import pandas as pd
 import math
 
+from sklearn.neighbors import KNeighborsClassifier
+
 def read_csv(filename, ylabel=None):
     df = pd.read_csv(filename)
 
@@ -79,6 +81,31 @@ def extract_unit_types(df):
 
     df = df.drop(['available_unit_types'], axis=1)
     return df
+
+def fill_lat_lng_knn(df, col_label, nan_index, knngraph=None):
+
+    lat = df['lat'].astype(float).to_numpy()
+    lng = df['lng'].astype(float).to_numpy()
+    target = df[col_label].astype(float).to_numpy()
+
+    if knngraph is None:
+        lat_cleaned = lat[target!=nan_index]
+        lng_cleaned = lng[target!=nan_index]
+        target_cleaned = target[target!=nan_index]
+
+        neigh = KNeighborsClassifier(n_neighbors=1)
+        neigh.fit(np.stack([lat_cleaned, lng_cleaned], axis=-1), target_cleaned)
+
+    lat_nan = lat[target==nan_index]
+    lng_nan = lng[target==nan_index]
+
+    pred_target = neigh.predict(np.stack([lat_nan, lng_nan], axis=-1))
+
+    print(pred_target)
+    print(pred_target.shape)
+    exit()
+
+    return df, knngraph
 
 def create_k_fold_validation(X, Y, k=10):
     chunk_size = len(X)//k

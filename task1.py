@@ -6,7 +6,7 @@ from sklearn.utils import shuffle
 
 from dataloader import read_csv
 from dataloader import remove_columns, convert_to_categorical, convert_to_continuous, convert_to_lowercase
-from dataloader import extract_unit_types
+from dataloader import extract_unit_types, fill_lat_lng_knn
 from dataloader import create_k_fold_validation
 
 from submission import create_submission
@@ -17,17 +17,31 @@ testX, _ = read_csv('data/test.csv')
 # Convert all strings to lowercase for easy processing later
 trainX, testX = convert_to_lowercase(trainX), convert_to_lowercase(testX)
 
-labels_to_remove = ['listing_id', 'title', 'property_details_url', 'elevation']
+labels_to_remove = ['listing_id', 'title', 'property_details_url', 'elevation', 'floor_level']
 # TODO Suggestion : Can we extract some information from the title?
 # TODO Suggestion : Can we mine some information from the url? Probably not, since the URLs lead to 404 error in most cases
 # elevation is simply 0 for all entries
+# floor_level is NaN for more than 80% of the data
+# TODO Suggestion : Maybe we can still use the floor_level information of the rest 20% examples
 trainX, testX = remove_columns(trainX, col_labels=labels_to_remove), remove_columns(testX, col_labels=labels_to_remove)
 
-labels_to_category = ['address', 'property_name', 'property_type', 'tenure', 'floor_level', 'furnishing', 'subzone', 'planning_area']
+labels_to_category = ['address', 'property_name', 'property_type', 'tenure', 'furnishing', 'subzone', 'planning_area']
 # TODO : property_type also contains information about types of available units, which needs to separately extracted
-# TODO : Currently NaN values also become their own category. Need to handle that later
 trainX, category_to_int_dict = convert_to_categorical(trainX, col_labels=labels_to_category)
 testX, _ = convert_to_categorical(testX, col_labels=labels_to_category, category_to_int_dict=category_to_int_dict)
+
+# These categories do not contain any NaN values : address, property_name, property_type, furnishing, lat, lng
+# Handling NaN values : tenure - Let the NaNs be their own category
+
+# Handling NaN values : subzone and planning_area - Use k-nearest neighbors and lat/lng values to find their subzone and planning_area
+# TODO : Weird subzone results for code below. Check again after cleaning outlier latitude and longitude values
+# nan_index = category_to_int_dict['subzone'][np.nan]
+# trainX, knngraph_subzone = fill_lat_lng_knn(trainX, 'subzone', nan_index)
+# exit()
+# testX, _ = fill_lat_lng_knn(testX, col_label='subzone', knngraph=knngraph_subzone)
+
+# Handling NaN values : built_year, num_beds, num_baths, size_sqft, total_num_units
+
 
 # labels_to_continuous = ['built_year', 'num_beds', 'num_baths', 'size_sqft', 'total_num_units', 'lat', 'lng'] # Not required right now
 
@@ -61,4 +75,4 @@ regressor = DecisionTreeRegressor(random_state=0)
 regressor = regressor.fit(trainX, trainY)
 testY = regressor.predict(testX)
 
-create_submission(testY, 'baseline-submission.csv')
+# create_submission(testY, 'baseline-submission.csv')
