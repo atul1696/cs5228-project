@@ -2,10 +2,12 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 from sklearn.tree import DecisionTreeRegressor
-from sklearn.ensemble import RandomForestRegressor
+from sklearn.ensemble import RandomForestRegressor, AdaBoostRegressor
+from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error
 from sklearn.utils import shuffle
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.model_selection import GridSearchCV
 
 from dataloader import read_csv
 from dataloader import remove_columns, convert_to_categorical, convert_to_continuous, convert_to_lowercase
@@ -69,12 +71,27 @@ scalerY.fit(trainY.reshape(-1, 1))
 trainY = scalerY.transform(trainY.reshape(-1, 1)).reshape(-1)
 
 trainX, trainY = shuffle(trainX, trainY, random_state=0)
-kfold_iterator = create_k_fold_validation(trainX, trainY, k=10)
 
+# Attempt to Add GridSearchCV. Incomplete
+# regressor = DecisionTreeRegressor(random_state=0)
+# parameters = {"criterion" : ["squared_error", "friedman_mse", "poisson"],
+#               "max_depth" : [1, 5, 10, 20],
+#               "min_samples_split" : [2, 5, 10],
+#               "min_samples_leaf" : [1, 2, 5, 10]}
+# gs_regressor = GridSearchCV(regressor, parameters, scoring='neg_root_mean_squared_error', verbose=1)
+# gs_regressor.fit(trainX, trainY)
+#
+# print("Best Parameters")
+# print(gs_regressor.best_params_)
+# {'criterion': 'poisson', 'max_depth': 1, 'min_samples_leaf': 1, 'min_samples_split': 2}
+
+regressor = DecisionTreeRegressor(random_state=0)
+# regressor = LinearRegression()
+
+kfold_iterator = create_k_fold_validation(trainX, trainY, k=10)
 rmse_arr = []
 for (X, Y, Xval, Yval) in tqdm(kfold_iterator):
-    regressor = RandomForestRegressor(random_state=0)
-    regressor = regressor.fit(X, Y)
+    regressor.fit(X, Y)
     Ypred = regressor.predict(Xval)
     rmse = mean_squared_error(Yval, Ypred, squared=False)
     rmse_arr.append(rmse)
@@ -83,9 +100,9 @@ print("Mean K-Fold Validation Error : ", np.mean(rmse_arr))
 print("Median K-Fold Validation Error : ", np.median(rmse_arr))
 print("Maximum K-Fold Validation Error : ", np.max(rmse_arr))
 
-regressor = DecisionTreeRegressor(random_state=0)
-regressor = regressor.fit(trainX, trainY)
+regressor.fit(trainX, trainY)
 testY = regressor.predict(testX)
+# testY = gs_regressor.predict(testX)
 testY = scalerY.inverse_transform(testY.reshape(-1, 1)).reshape(-1)
 
 create_submission(testY, 'baseline-submission.csv')
