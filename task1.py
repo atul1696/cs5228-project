@@ -1,8 +1,11 @@
 import numpy as np
 import pandas as pd
+from tqdm import tqdm
 from sklearn.tree import DecisionTreeRegressor
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_squared_error
 from sklearn.utils import shuffle
+from sklearn.preprocessing import MinMaxScaler
 
 from dataloader import read_csv
 from dataloader import remove_columns, convert_to_categorical, convert_to_continuous, convert_to_lowercase
@@ -57,13 +60,20 @@ testX = testX.fillna(trainX.mean())
 assert not trainY.isnull().values.any() # Just a check to make sure all labels are available
 
 trainX, trainY, testX = trainX.astype(float).to_numpy(), trainY.astype(float).to_numpy(), testX.astype(float).to_numpy()
-trainX, trainY = shuffle(trainX, trainY, random_state=0)
 
+scalerX = MinMaxScaler()
+scalerY = MinMaxScaler()
+scalerX.fit(trainX)
+trainX, testX = scalerX.transform(trainX), scalerX.transform(testX)
+scalerY.fit(trainY.reshape(-1, 1))
+trainY = scalerY.transform(trainY.reshape(-1, 1)).reshape(-1)
+
+trainX, trainY = shuffle(trainX, trainY, random_state=0)
 kfold_iterator = create_k_fold_validation(trainX, trainY, k=10)
 
 rmse_arr = []
-for (X, Y, Xval, Yval) in kfold_iterator:
-    regressor = DecisionTreeRegressor(random_state=0)
+for (X, Y, Xval, Yval) in tqdm(kfold_iterator):
+    regressor = RandomForestRegressor(random_state=0)
     regressor = regressor.fit(X, Y)
     Ypred = regressor.predict(Xval)
     rmse = mean_squared_error(Yval, Ypred, squared=False)
@@ -76,5 +86,6 @@ print("Maximum K-Fold Validation Error : ", np.max(rmse_arr))
 regressor = DecisionTreeRegressor(random_state=0)
 regressor = regressor.fit(trainX, trainY)
 testY = regressor.predict(testX)
+testY = scalerY.inverse_transform(testY.reshape(-1, 1)).reshape(-1)
 
-# create_submission(testY, 'baseline-submission.csv')
+create_submission(testY, 'baseline-submission.csv')
