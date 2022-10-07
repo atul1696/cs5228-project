@@ -55,8 +55,6 @@ testX, _ = fill_lat_lng_knn(testX, 'planning_area', nan_index, knngraph=knngraph
 # Handling NaN values : num_baths - Just provide them with the average value
 # Handling NaN values : total_num_units - Just provide them with the average value
 
-# labels_to_continuous = ['built_year', 'num_beds', 'num_baths', 'size_sqft', 'total_num_units', 'lat', 'lng'] # Not required right now
-
 # Handling available_unit_types
 trainX, testX = extract_unit_types(trainX), extract_unit_types(testX)
 
@@ -77,28 +75,27 @@ trainY = scalerY.transform(trainY.reshape(-1, 1)).reshape(-1)
 
 trainX, trainY = shuffle(trainX, trainY, random_state=0)
 
-# Attempt to Add GridSearchCV. Incomplete
-# regressor = DecisionTreeRegressor(random_state=0)
-# parameters = {"criterion" : ["squared_error", "friedman_mse", "poisson"],
-#               "max_depth" : [1, 5, 10, 20],
-#               "min_samples_split" : [2, 5, 10],
-#               "min_samples_leaf" : [1, 2, 5, 10]}
-# gs_regressor = GridSearchCV(regressor, parameters, scoring='neg_root_mean_squared_error', verbose=1)
-# gs_regressor.fit(trainX, trainY)
-#
-# print("Best Parameters")
-# print(gs_regressor.best_params_)
-# {'criterion': 'poisson', 'max_depth': 1, 'min_samples_leaf': 1, 'min_samples_split': 2}
+kfold = False
+if kfold:
+    estimator = DecisionTreeRegressor(random_state=0)
+    # estimator = LinearRegression()
+    parameters = {"criterion" : ["squared_error", "friedman_mse", "poisson"],
+                  "max_depth" : [None, 1, 5, 10, 20],
+                  "min_samples_split" : [2, 5, 10],
+                  "min_samples_leaf" : [1, 2, 5, 10]}
+    regressor = GridSearchCV(estimator, parameters, scoring='neg_root_mean_squared_error', verbose=4)
+    regressor.fit(trainX, trainY)
+    print(regressor.best_params_)
+else:
+    regressor = DecisionTreeRegressor(random_state=0) # The best tuned model
 
-regressor = DecisionTreeRegressor(random_state=0)
-# regressor = DecisionTreeRegressor(random_state=0, criterion='poisson', max_depth=1)
-# regressor = LinearRegression()
 
 kfold_iterator = create_k_fold_validation(trainX, trainY, k=10)
 rmse_arr = []
 for (X, Y, Xval, Yval) in tqdm(kfold_iterator):
     regressor.fit(X, Y)
     Ypred = regressor.predict(Xval)
+    Ypred, Yval = scalerY.inverse_transform(Ypred.reshape(-1, 1)).reshape(-1), scalerY.inverse_transform(Yval.reshape(-1, 1)).reshape(-1)
     rmse = mean_squared_error(Yval, Ypred, squared=False)
     rmse_arr.append(rmse)
 
