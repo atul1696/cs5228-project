@@ -42,10 +42,13 @@ testX, _ = convert_to_categorical(testX, col_labels=labels_to_category, category
 # Handling NaN values : tenure - Let the NaNs be their own category
 
 # Handling NaN values : subzone and planning_area - Use k-nearest neighbors and lat/lng values to find their subzone and planning_area
-# nan_index = category_to_int_dict['subzone'][np.nan]
-# trainX, knngraph_subzone = fill_lat_lng_knn(trainX, 'subzone', nan_index)
-# exit()
-# testX, _ = fill_lat_lng_knn(testX, col_label='subzone', knngraph=knngraph_subzone)
+nan_index = category_to_int_dict['subzone'][np.nan]
+trainX, knngraph_subzone = fill_lat_lng_knn(trainX, 'subzone', nan_index)
+testX, _ = fill_lat_lng_knn(testX, 'subzone', nan_index, knngraph=knngraph_subzone)
+
+nan_index = category_to_int_dict['planning_area'][np.nan]
+trainX, knngraph_planning_area = fill_lat_lng_knn(trainX, 'planning_area', nan_index)
+testX, _ = fill_lat_lng_knn(testX, 'planning_area', nan_index, knngraph=knngraph_planning_area)
 
 # Handling NaN values : built_year - Just provide them with the average value
 # Handling NaN values : num_beds - Just provide them with the average value
