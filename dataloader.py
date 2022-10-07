@@ -82,6 +82,18 @@ def extract_unit_types(df):
     df = df.drop(['available_unit_types'], axis=1)
     return df
 
+def replace_corrupted_lat_lng(df):
+    corrupted_lat_lng_dict = {(14.4848138, 121.0232316) : (1.316519, 103.857510),
+                              (38.9427759, -77.06536425) : (1.312767, 103.886961),
+                              (69.4867678, 20.1844341) : (1.314094, 103.806833)}
+
+    corrupted_lat_dict = {k[0] : v[0] for k, v in corrupted_lat_lng_dict.items()}
+    corrupted_lng_dict = {k[1] : v[1] for k, v in corrupted_lat_lng_dict.items()}
+    df['lat'] = df['lat'].map(corrupted_lat_dict)
+    df['lng'] = df['lng'].map(corrupted_lng_dict)
+
+    return df
+
 def fill_lat_lng_knn(df, col_label, nan_index, knngraph=None):
 
     lat = df['lat'].astype(float).to_numpy()

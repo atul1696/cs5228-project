@@ -11,7 +11,7 @@ from sklearn.model_selection import GridSearchCV
 
 from dataloader import read_csv
 from dataloader import remove_columns, convert_to_categorical, convert_to_continuous, convert_to_lowercase
-from dataloader import extract_unit_types, fill_lat_lng_knn
+from dataloader import extract_unit_types, fill_lat_lng_knn, replace_corrupted_lat_lng
 from dataloader import create_k_fold_validation
 
 from submission import create_submission
@@ -29,6 +29,9 @@ labels_to_remove = ['listing_id', 'title', 'property_details_url', 'elevation', 
 # floor_level is NaN for more than 80% of the data
 # TODO Suggestion : Maybe we can still use the floor_level information of the rest 20% examples
 trainX, testX = remove_columns(trainX, col_labels=labels_to_remove), remove_columns(testX, col_labels=labels_to_remove)
+
+# Remove corrupted lat lng Values
+trainX, testX = replace_corrupted_lat_lng(trainX), replace_corrupted_lat_lng(testX)
 
 labels_to_category = ['address', 'property_name', 'property_type', 'tenure', 'furnishing', 'subzone', 'planning_area']
 # TODO : property_type also contains information about types of available units, which needs to separately extracted
@@ -86,6 +89,7 @@ trainX, trainY = shuffle(trainX, trainY, random_state=0)
 # {'criterion': 'poisson', 'max_depth': 1, 'min_samples_leaf': 1, 'min_samples_split': 2}
 
 regressor = DecisionTreeRegressor(random_state=0)
+# regressor = DecisionTreeRegressor(random_state=0, criterion='poisson', max_depth=1)
 # regressor = LinearRegression()
 
 kfold_iterator = create_k_fold_validation(trainX, trainY, k=10)
