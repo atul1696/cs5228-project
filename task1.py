@@ -22,6 +22,10 @@ testX, _ = read_csv('data/test.csv')
 # Convert all strings to lowercase for easy processing later
 trainX, testX = convert_to_lowercase(trainX), convert_to_lowercase(testX)
 
+# There are 10 values for the furnishing feature set as 'na' in the training set. Changing them to 'unspecified'.
+trainX['furnishing'] = trainX['furnishing'].replace('na', 'unspecified')
+testX['furnishing'] = testX['furnishing'].replace('na', 'unspecified')
+
 labels_to_remove = ['listing_id', 'title', 'property_details_url', 'elevation', 'floor_level']
 # TODO Suggestion : Can we extract some information from the title?
 # TODO Suggestion : Can we mine some information from the url? Probably not, since the URLs lead to 404 error in most cases
