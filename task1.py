@@ -42,7 +42,6 @@ testX, _ = convert_to_categorical(testX, col_labels=labels_to_category, category
 # Handling NaN values : tenure - Let the NaNs be their own category
 
 # Handling NaN values : subzone and planning_area - Use k-nearest neighbors and lat/lng values to find their subzone and planning_area
-# TODO : Weird subzone results for code below. Check again after cleaning outlier latitude and longitude values
 # nan_index = category_to_int_dict['subzone'][np.nan]
 # trainX, knngraph_subzone = fill_lat_lng_knn(trainX, 'subzone', nan_index)
 # exit()

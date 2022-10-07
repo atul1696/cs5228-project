@@ -87,10 +87,15 @@ def replace_corrupted_lat_lng(df):
                               (38.9427759, -77.06536425) : (1.312767, 103.886961),
                               (69.4867678, 20.1844341) : (1.314094, 103.806833)}
 
+    def replace_corrupted_values(x, dict):
+        if x in dict:
+            return dict[x]
+        return x
+
     corrupted_lat_dict = {k[0] : v[0] for k, v in corrupted_lat_lng_dict.items()}
     corrupted_lng_dict = {k[1] : v[1] for k, v in corrupted_lat_lng_dict.items()}
-    df['lat'] = df['lat'].map(corrupted_lat_dict)
-    df['lng'] = df['lng'].map(corrupted_lng_dict)
+    df['lat'] = df['lat'].apply(lambda x: replace_corrupted_values(x, corrupted_lat_dict))
+    df['lng'] = df['lng'].apply(lambda x: replace_corrupted_values(x, corrupted_lng_dict))
 
     return df
 
@@ -99,6 +104,10 @@ def fill_lat_lng_knn(df, col_label, nan_index, knngraph=None):
     lat = df['lat'].astype(float).to_numpy()
     lng = df['lng'].astype(float).to_numpy()
     target = df[col_label].astype(float).to_numpy()
+
+    print(lat)
+    print(lng)
+    print(target)
 
     if knngraph is None:
         lat_cleaned = lat[target!=nan_index]
