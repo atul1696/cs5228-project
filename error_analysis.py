@@ -12,7 +12,11 @@ def error_distribution(Ypred, Yval, outfile):
 
 def error_outliers(Ypred, Yval, Xval, col_names):
     error = (Ypred - Yval)**2
-    outlier_elements = Xval[error > 1e17]
+    outlierX = Xval[error > 1e17]
+    outlierYpred, outlierYval = Ypred[error > 1e17], Yval[error > 1e17]
 
-    print(outlier_elements)
+    if len(outlierX) > 0:
+        print(outlierYpred)
+        print(outlierYval)
+        # exit()
     return
