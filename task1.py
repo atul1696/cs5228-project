@@ -99,7 +99,7 @@ if gridsearch:
     exit()
 else:
     # regressor = DummyRegressor(strategy="mean")
-    # regressor = DecisionTreeRegressor(random_state=0) # The best tuned model
+    regressor = DecisionTreeRegressor(random_state=0) # The best tuned model
     # regressor = Ridge(random_state=0, alpha=5.0, solver='lsqr', tol=0.01)
     # regressor = MLPRegressor(random_state=0, learning_rate_init=0.1, max_iter=500)
 
