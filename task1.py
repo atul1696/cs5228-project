@@ -15,11 +15,13 @@ from dataloader import read_csv
 from dataloader import create_k_fold_validation
 from preprocessing import preprocess_data_for_classification
 from submission import create_submission
+from error_analysis import error_distribution, error_outliers
 
 trainX, trainY = read_csv('data/train.csv', ylabel='price')
 testX, _ = read_csv('data/test.csv')
 
 trainX, trainY, testX = preprocess_data_for_classification(trainX, trainY, testX)
+col_names = list(trainX.columns)
 
 assert not trainY.isnull().values.any() # Just a check to make sure all labels are available
 
@@ -62,12 +64,14 @@ else:
 kfold_iterator = create_k_fold_validation(trainX, trainY, k=10)
 rmse_arr = []
 rmse_train_arr = []
-for (X, Y, Xval, Yval) in tqdm(kfold_iterator):
+for k, (X, Y, Xval, Yval) in enumerate(tqdm(kfold_iterator)):
     regressor.fit(X, Y)
 
     Ypred = regressor.predict(Xval)
     Ypred, Yval = scalerY.inverse_transform(Ypred.reshape(-1, 1)).reshape(-1), scalerY.inverse_transform(Yval.reshape(-1, 1)).reshape(-1)
     rmse = mean_squared_error(Yval, Ypred, squared=False)
+    # error_distribution(Ypred, Yval, ('images/k_%d_distrib.png' % k))
+    # error_outliers(Ypred, Yval, Xval, col_names)
     rmse_arr.append(rmse)
 
     Ypred_train = regressor.predict(X)
