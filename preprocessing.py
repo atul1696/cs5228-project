@@ -1,6 +1,7 @@
 import numpy as np
+import pandas as pd
 
-from dataloader import remove_columns, convert_to_categorical, convert_to_continuous, convert_to_lowercase
+from dataloader import remove_columns, convert_to_categorical, convert_to_continuous, convert_to_lowercase, convert_to_onehot
 from dataloader import extract_unit_types, fill_lat_lng_knn, replace_corrupted_lat_lng
 
 def preprocess_data_for_classification(trainX, trainY, testX):
@@ -12,18 +13,19 @@ def preprocess_data_for_classification(trainX, trainY, testX):
     trainX['furnishing'] = trainX['furnishing'].replace('na', 'unspecified')
     testX['furnishing'] = testX['furnishing'].replace('na', 'unspecified')
 
-    labels_to_remove = ['listing_id', 'title', 'property_details_url', 'elevation', 'floor_level']
+    labels_to_remove = ['listing_id', 'title', 'property_details_url', 'elevation', 'floor_level', 'address', 'property_name']
     # TODO Suggestion : Can we extract some information from the title?
     # TODO Suggestion : Can we mine some information from the url? Probably not, since the URLs lead to 404 error in most cases
     # elevation is simply 0 for all entries
     # floor_level is NaN for more than 80% of the data
     # TODO Suggestion : Maybe we can still use the floor_level information of the rest 20% examples
+    # address and property_name are also dropped for now
     trainX, testX = remove_columns(trainX, col_labels=labels_to_remove), remove_columns(testX, col_labels=labels_to_remove)
 
     # Remove corrupted lat lng Values
     trainX, testX = replace_corrupted_lat_lng(trainX), replace_corrupted_lat_lng(testX)
 
-    labels_to_category = ['address', 'property_name', 'property_type', 'tenure', 'furnishing', 'subzone', 'planning_area']
+    labels_to_category = ['property_type', 'tenure', 'furnishing', 'subzone', 'planning_area']
     # TODO : property_type also contains information about types of available units, which needs to separately extracted
     trainX, category_to_int_dict = convert_to_categorical(trainX, col_labels=labels_to_category)
     testX, _ = convert_to_categorical(testX, col_labels=labels_to_category, category_to_int_dict=category_to_int_dict)
@@ -40,6 +42,11 @@ def preprocess_data_for_classification(trainX, trainY, testX):
     trainX, knngraph_planning_area = fill_lat_lng_knn(trainX, 'planning_area', nan_index)
     testX, _ = fill_lat_lng_knn(testX, 'planning_area', nan_index, knngraph=knngraph_planning_area)
 
+    # Done after filling subzone values
+    labels_to_onehot = labels_to_category
+    trainX = convert_to_onehot(trainX, col_labels=labels_to_onehot, category_to_int_dict=category_to_int_dict)
+    testX = convert_to_onehot(testX, col_labels=labels_to_onehot, category_to_int_dict=category_to_int_dict)
+
     # Handling NaN values : built_year - Just provide them with the average value
     # Handling NaN values : num_beds - Just provide them with the average value
     # Handling NaN values : num_baths - Just provide them with the average value
@@ -51,5 +58,10 @@ def preprocess_data_for_classification(trainX, trainY, testX):
     ## TODO : Temporary handling of missing entries and NaNs!! Needs to be revisited
     trainX = trainX.fillna(trainX.mean())
     testX = testX.fillna(trainX.mean())
+
+    # pd.set_option('display.max_columns', None)
+    # print(trainX.head())
+
+    print("Training Data Shape : ", np.shape(trainX))
 
     return trainX, trainY, testX

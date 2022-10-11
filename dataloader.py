@@ -28,6 +28,19 @@ def convert_to_categorical(df, col_labels=[], category_to_int_dict={}):
 
     return df, category_to_int_dict
 
+def convert_to_onehot(df, col_labels=[], category_to_int_dict={}):
+    for col in col_labels:
+        if col not in category_to_int_dict:
+            raise "Category labels expected here. Should have been filled during categorical conversion"
+
+        for ele in category_to_int_dict[col]:
+            column_name = col + '_' + str(ele)
+            df[column_name] = (df[col] == category_to_int_dict[col][ele])
+
+        df = df.drop(col,axis = 1)
+
+    return df
+
 def convert_to_continuous(df, col_labels=[], max_min_dict={}):
     for col in col_labels:
         df = df.fillna(df.mean()) # Temporary handling of NaN values
