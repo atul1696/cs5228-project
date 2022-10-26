@@ -4,7 +4,8 @@ import pandas as pd
 from dataloader import remove_columns, convert_to_categorical, convert_to_continuous, convert_to_lowercase, convert_to_onehot
 from dataloader import extract_unit_types, fill_lat_lng_knn, replace_corrupted_lat_lng
 
-def preprocess_data_for_classification(trainX, trainY, testX):
+
+def preprocess_data_for_classification(trainX, trainY, testX, perform_one_hot_encoding=True):
 
     # Convert all strings to lowercase for easy processing later
     trainX, testX = convert_to_lowercase(trainX), convert_to_lowercase(testX)
@@ -43,9 +44,10 @@ def preprocess_data_for_classification(trainX, trainY, testX):
     testX, _ = fill_lat_lng_knn(testX, 'planning_area', nan_index, knngraph=knngraph_planning_area)
 
     # Done after filling subzone values
-    labels_to_onehot = labels_to_category
-    trainX = convert_to_onehot(trainX, col_labels=labels_to_onehot, category_to_int_dict=category_to_int_dict)
-    testX = convert_to_onehot(testX, col_labels=labels_to_onehot, category_to_int_dict=category_to_int_dict)
+    if perform_one_hot_encoding:
+        labels_to_onehot = labels_to_category
+        trainX = convert_to_onehot(trainX, col_labels=labels_to_onehot, category_to_int_dict=category_to_int_dict)
+        testX = convert_to_onehot(testX, col_labels=labels_to_onehot, category_to_int_dict=category_to_int_dict)
 
     # Handling NaN values : built_year - Just provide them with the average value
     # Handling NaN values : num_beds - Just provide them with the average value
