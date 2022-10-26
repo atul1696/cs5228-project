@@ -6,6 +6,9 @@ from dataloader import extract_unit_types, fill_lat_lng_knn, replace_corrupted_l
 
 
 def preprocess_data_for_classification(trainX, trainY, testX, perform_one_hot_encoding=True):
+    index_list_to_remove = [5976, 16264]
+    trainX.drop(index=index_list_to_remove, inplace=True)
+    trainY.drop(index=index_list_to_remove, inplace=True)
 
     # Convert all strings to lowercase for easy processing later
     trainX, testX = convert_to_lowercase(trainX), convert_to_lowercase(testX)
