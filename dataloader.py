@@ -28,6 +28,16 @@ def convert_to_categorical(df, col_labels=[], category_to_int_dict={}):
 
     return df, category_to_int_dict
 
+def use_target_encoding(df, target, col_labels=[], category_to_int_dict={}):
+    for col in col_labels:
+        if col not in category_to_int_dict:
+            category_to_int_dict[col] = {name: np.mean(np.take(target, indices)) for name, indices in df.groupby(col).indices.items()}
+
+        category_to_int = category_to_int_dict[col]
+        df[col] = df[col].map(category_to_int, na_action='ignore')
+
+    return df, category_to_int_dict
+
 def convert_to_onehot(df, col_labels=[], category_to_int_dict={}):
     for col in col_labels:
         if col not in category_to_int_dict:

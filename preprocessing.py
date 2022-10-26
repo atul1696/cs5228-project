@@ -1,12 +1,18 @@
 import numpy as np
 import pandas as pd
 
-from dataloader import remove_columns, convert_to_categorical, convert_to_continuous, convert_to_lowercase, convert_to_onehot
+from dataloader import remove_columns, convert_to_categorical, convert_to_continuous, convert_to_lowercase, convert_to_onehot, use_target_encoding
 from dataloader import extract_unit_types, fill_lat_lng_knn, replace_corrupted_lat_lng
+
+from sklearn.impute import KNNImputer
 
 
 def preprocess_data_for_classification(trainX, trainY, testX, perform_one_hot_encoding=True):
-    index_list_to_remove = [5976, 16264]
+    index_list_to_remove = []
+    index_list_to_remove.extend(trainX.index[~((trainX["size_sqft"] > 300))].tolist())
+    index_list_to_remove.extend(trainY.index[~((trainY > 0) & (trainY < 2 * 10 ** 8))].tolist())
+    index_list_to_remove.extend([14218, 15027, 4347, 663, 19587, 13461])
+
     trainX.drop(index=index_list_to_remove, inplace=True)
     trainY.drop(index=index_list_to_remove, inplace=True)
 
@@ -17,7 +23,7 @@ def preprocess_data_for_classification(trainX, trainY, testX, perform_one_hot_en
     trainX['furnishing'] = trainX['furnishing'].replace('na', 'unspecified')
     testX['furnishing'] = testX['furnishing'].replace('na', 'unspecified')
 
-    labels_to_remove = ['listing_id', 'title', 'property_details_url', 'elevation', 'floor_level', 'address', 'property_name']
+    labels_to_remove = ['listing_id', 'title', 'property_details_url', 'elevation', 'floor_level', 'address', 'total_num_units', 'available_unit_types']
     # TODO Suggestion : Can we extract some information from the title?
     # TODO Suggestion : Can we mine some information from the url? Probably not, since the URLs lead to 404 error in most cases
     # elevation is simply 0 for all entries
@@ -29,7 +35,8 @@ def preprocess_data_for_classification(trainX, trainY, testX, perform_one_hot_en
     # Remove corrupted lat lng Values
     trainX, testX = replace_corrupted_lat_lng(trainX), replace_corrupted_lat_lng(testX)
 
-    labels_to_category = ['property_type', 'tenure', 'furnishing', 'subzone', 'planning_area']
+    # labels_to_category = ['property_type', 'tenure', 'furnishing', 'subzone', 'planning_area']
+    labels_to_category = ['subzone', 'planning_area', 'tenure', 'furnishing']
     # TODO : property_type also contains information about types of available units, which needs to separately extracted
     trainX, category_to_int_dict = convert_to_categorical(trainX, col_labels=labels_to_category)
     testX, _ = convert_to_categorical(testX, col_labels=labels_to_category, category_to_int_dict=category_to_int_dict)
@@ -46,9 +53,13 @@ def preprocess_data_for_classification(trainX, trainY, testX, perform_one_hot_en
     trainX, knngraph_planning_area = fill_lat_lng_knn(trainX, 'planning_area', nan_index)
     testX, _ = fill_lat_lng_knn(testX, 'planning_area', nan_index, knngraph=knngraph_planning_area)
 
+    labels_to_target_encode = ['property_name', 'property_type', 'subzone', 'planning_area']
+    trainX, category_to_target_dict = use_target_encoding(trainX, trainY, col_labels=labels_to_target_encode)
+    testX, _ = use_target_encoding(testX, None, col_labels=labels_to_target_encode, category_to_int_dict=category_to_target_dict)
+
     # Done after filling subzone values
     if perform_one_hot_encoding:
-        labels_to_onehot = labels_to_category
+        labels_to_onehot = ['tenure', 'furnishing']
         trainX = convert_to_onehot(trainX, col_labels=labels_to_onehot, category_to_int_dict=category_to_int_dict)
         testX = convert_to_onehot(testX, col_labels=labels_to_onehot, category_to_int_dict=category_to_int_dict)
 
@@ -58,11 +69,15 @@ def preprocess_data_for_classification(trainX, trainY, testX, perform_one_hot_en
     # Handling NaN values : total_num_units - Just provide them with the average value
 
     # Handling available_unit_types
-    trainX, testX = extract_unit_types(trainX), extract_unit_types(testX)
+    # trainX, testX = extract_unit_types(trainX), extract_unit_types(testX)
 
     ## TODO : Temporary handling of missing entries and NaNs!! Needs to be revisited
-    trainX = trainX.fillna(trainX.mean())
-    testX = testX.fillna(trainX.mean())
+    knn_imputer = KNNImputer(n_neighbors=10, weights='distance')
+    trainX = pd.DataFrame(knn_imputer.fit_transform(trainX), columns=trainX.columns)
+    testX = pd.DataFrame(knn_imputer.transform(testX), columns=testX.columns)
+
+    # trainX = trainX.fillna(trainX.mean())
+    # testX = testX.fillna(trainX.mean())
 
     # pd.set_option('display.max_columns', None)
     # print(trainX.head())
