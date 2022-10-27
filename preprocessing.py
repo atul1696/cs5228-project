@@ -11,7 +11,7 @@ from sklearn.impute import KNNImputer
 
 def drop_outliers(trainX, trainY):
     index_list_to_remove = []
-    index_list_to_remove.extend(trainX.index[~((trainX["size_sqft"] > 300))].tolist())
+    index_list_to_remove.extend(trainX.index[~(trainX['size_sqft'] > 300)].tolist())
     index_list_to_remove.extend(trainY.index[~((trainY > 0) & (trainY < 2 * 10 ** 8))].tolist())
     index_list_to_remove.extend([14218, 15027, 4347, 663, 19587, 13461])
 
@@ -20,7 +20,7 @@ def drop_outliers(trainX, trainY):
 
 
 def drop_unnecessary_columns(df):
-    labels_to_remove = ['listing_id', 'title', 'property_details_url', 'elevation', 'floor_level', 'address', 'total_num_units', 'available_unit_types']
+    labels_to_remove = ['listing_id', 'title', 'property_details_url', 'elevation', 'floor_level', 'address', 'total_num_units', 'available_unit_types', 'property_name']
     # TODO Suggestion : Can we extract some information from the title?
     # TODO Suggestion : Can we mine some information from the url? Probably not, since the URLs lead to 404 error in most cases
     # elevation is simply 0 for all entries
@@ -28,6 +28,14 @@ def drop_unnecessary_columns(df):
     # TODO Suggestion : Maybe we can still use the floor_level information of the rest 20% examples
     # address and property_name are also dropped for now
     df = remove_columns(df, col_labels=labels_to_remove)
+
+    return df
+
+
+def round_off_columns(df):
+    labels_to_round_off = ['built_year', 'num_beds', 'num_baths']
+    for col in labels_to_round_off:
+        df[col] = df[col].apply(np.floor)
 
     return df
 
@@ -80,7 +88,7 @@ def preprocess_data_for_classification(trainX, trainY, testX):
     trainX, knngraph_planning_area = fill_lat_lng_knn(trainX, 'planning_area', nan_index)
     testX, _ = fill_lat_lng_knn(testX, 'planning_area', nan_index, knngraph=knngraph_planning_area)
 
-    labels_to_target_encode = ['property_name', 'property_type', 'subzone', 'planning_area']
+    labels_to_target_encode = ['property_type', 'subzone', 'planning_area']
     trainX, category_to_target_dict = use_target_encoding(trainX, trainY, col_labels=labels_to_target_encode)
     testX, _ = use_target_encoding(testX, None, col_labels=labels_to_target_encode, category_to_int_dict=category_to_target_dict)
 
@@ -101,6 +109,8 @@ def preprocess_data_for_classification(trainX, trainY, testX):
     knn_imputer = KNNImputer(n_neighbors=10, weights='distance')
     trainX = pd.DataFrame(knn_imputer.fit_transform(trainX), columns=trainX.columns)
     testX = pd.DataFrame(knn_imputer.transform(testX), columns=testX.columns)
+
+    trainX, testX = round_off_columns(trainX), round_off_columns(testX)
 
     # trainX = trainX.fillna(trainX.mean())
     # testX = testX.fillna(trainX.mean())
