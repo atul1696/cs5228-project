@@ -35,7 +35,7 @@ def drop_unnecessary_columns(df):
 def round_off_columns(df):
     labels_to_round_off = ['built_year', 'num_beds', 'num_baths']
     for col in labels_to_round_off:
-        df[col] = df[col].apply(np.floor)
+        df[col] = df[col].apply(np.ceil)
 
     return df
 
