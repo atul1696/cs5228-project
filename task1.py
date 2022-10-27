@@ -17,6 +17,8 @@ from preprocessing import preprocess_data_for_classification
 from submission import create_submission
 from error_analysis import error_distribution, error_outliers
 
+# pd.set_option('display.max_columns', None)
+
 trainX, trainY = read_csv('data/train.csv', ylabel='price')
 testX, _ = read_csv('data/test.csv')
 

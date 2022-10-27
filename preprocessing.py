@@ -65,6 +65,14 @@ def preprocess_data_for_classification(trainX, trainY, testX):
     trainX['furnishing'] = trainX['furnishing'].replace('na', 'unspecified')
     testX['furnishing'] = testX['furnishing'].replace('na', 'unspecified')
 
+    # All leasehold in 100 year range are equivalent to 99-year leasehold, and all leashold in 900_ range are quivalent to freehold
+    for leasehold in ['947-year leasehold', '929-year leasehold', '946-year leasehold', '956-year leasehold', '999-year leasehold']:
+        trainX['tenure'] = trainX['tenure'].replace(leasehold, 'freehold')
+        testX['tenure'] = testX['tenure'].replace(leasehold, 'freehold')
+    for leasehold in ['100-year leasehold', '102-year leasehold', '110-year leasehold', '103-year leasehold']:
+        trainX['tenure'] = trainX['tenure'].replace(leasehold, '99-year leasehold')
+        testX['tenure'] = testX['tenure'].replace(leasehold, '99-year leasehold')
+
     trainX, testX = drop_unnecessary_columns(trainX), drop_unnecessary_columns(testX)
 
     # Remove corrupted lat lng Values
