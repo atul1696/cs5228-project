@@ -1,3 +1,5 @@
+import copy
+
 import numpy as np
 import pandas as pd
 
@@ -7,7 +9,7 @@ from dataloader import extract_unit_types, fill_lat_lng_knn, replace_corrupted_l
 from sklearn.impute import KNNImputer
 
 
-def preprocess_data_for_classification(trainX, trainY, testX, perform_one_hot_encoding=True):
+def drop_outliers(trainX, trainY):
     index_list_to_remove = []
     index_list_to_remove.extend(trainX.index[~((trainX["size_sqft"] > 300))].tolist())
     index_list_to_remove.extend(trainY.index[~((trainY > 0) & (trainY < 2 * 10 ** 8))].tolist())
@@ -16,13 +18,8 @@ def preprocess_data_for_classification(trainX, trainY, testX, perform_one_hot_en
     trainX.drop(index=index_list_to_remove, inplace=True)
     trainY.drop(index=index_list_to_remove, inplace=True)
 
-    # Convert all strings to lowercase for easy processing later
-    trainX, testX = convert_to_lowercase(trainX), convert_to_lowercase(testX)
 
-    # There are 10 values for the furnishing feature set as 'na' in the training set. Changing them to 'unspecified'.
-    trainX['furnishing'] = trainX['furnishing'].replace('na', 'unspecified')
-    testX['furnishing'] = testX['furnishing'].replace('na', 'unspecified')
-
+def drop_unnecessary_columns(df):
     labels_to_remove = ['listing_id', 'title', 'property_details_url', 'elevation', 'floor_level', 'address', 'total_num_units', 'available_unit_types']
     # TODO Suggestion : Can we extract some information from the title?
     # TODO Suggestion : Can we mine some information from the url? Probably not, since the URLs lead to 404 error in most cases
@@ -30,7 +27,37 @@ def preprocess_data_for_classification(trainX, trainY, testX, perform_one_hot_en
     # floor_level is NaN for more than 80% of the data
     # TODO Suggestion : Maybe we can still use the floor_level information of the rest 20% examples
     # address and property_name are also dropped for now
-    trainX, testX = remove_columns(trainX, col_labels=labels_to_remove), remove_columns(testX, col_labels=labels_to_remove)
+    df = remove_columns(df, col_labels=labels_to_remove)
+
+    return df
+
+
+def preprocess_data_for_visualization(trainX, trainY, testX):
+    trainX, testX = convert_to_lowercase(trainX), convert_to_lowercase(testX)
+    trainX_orig, trainY_orig = copy.deepcopy(trainX), copy.deepcopy(trainY)
+    drop_outliers(trainX_orig, trainY_orig)
+    trainX_orig = drop_unnecessary_columns(trainX_orig)
+
+    trainX_processed, trainY_processed, _ = preprocess_data_for_classification(trainX, trainY, testX)
+
+    columns_to_copy = ['built_year', 'num_beds', 'num_baths', 'size_sqft']
+    for col in columns_to_copy:
+        trainX_orig[col] = trainX_processed[col]
+
+    return trainX_orig, trainY_orig
+
+
+def preprocess_data_for_classification(trainX, trainY, testX):
+    drop_outliers(trainX, trainY)
+
+    # Convert all strings to lowercase for easy processing later
+    trainX, testX = convert_to_lowercase(trainX), convert_to_lowercase(testX)
+
+    # There are 10 values for the furnishing feature set as 'na' in the training set. Changing them to 'unspecified'.
+    trainX['furnishing'] = trainX['furnishing'].replace('na', 'unspecified')
+    testX['furnishing'] = testX['furnishing'].replace('na', 'unspecified')
+
+    trainX, testX = drop_unnecessary_columns(trainX), drop_unnecessary_columns(testX)
 
     # Remove corrupted lat lng Values
     trainX, testX = replace_corrupted_lat_lng(trainX), replace_corrupted_lat_lng(testX)
@@ -58,10 +85,9 @@ def preprocess_data_for_classification(trainX, trainY, testX, perform_one_hot_en
     testX, _ = use_target_encoding(testX, None, col_labels=labels_to_target_encode, category_to_int_dict=category_to_target_dict)
 
     # Done after filling subzone values
-    if perform_one_hot_encoding:
-        labels_to_onehot = ['tenure', 'furnishing']
-        trainX = convert_to_onehot(trainX, col_labels=labels_to_onehot, category_to_int_dict=category_to_int_dict)
-        testX = convert_to_onehot(testX, col_labels=labels_to_onehot, category_to_int_dict=category_to_int_dict)
+    labels_to_onehot = ['tenure', 'furnishing']
+    trainX = convert_to_onehot(trainX, col_labels=labels_to_onehot, category_to_int_dict=category_to_int_dict)
+    testX = convert_to_onehot(testX, col_labels=labels_to_onehot, category_to_int_dict=category_to_int_dict)
 
     # Handling NaN values : built_year - Just provide them with the average value
     # Handling NaN values : num_beds - Just provide them with the average value
