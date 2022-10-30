@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 from dataloader import remove_columns, convert_to_categorical, convert_to_continuous, convert_to_lowercase, convert_to_onehot, use_target_encoding
-from dataloader import extract_unit_types, fill_lat_lng_knn, replace_corrupted_lat_lng
+from dataloader import extract_unit_types, extract_floor_level, fill_lat_lng_knn, replace_corrupted_lat_lng
 
 from sklearn.impute import KNNImputer
 
@@ -20,7 +20,7 @@ def drop_outliers(trainX, trainY):
 
 
 def drop_unnecessary_columns(df):
-    labels_to_remove = ['listing_id', 'title', 'property_details_url', 'elevation', 'floor_level', 'address', 'total_num_units', 'available_unit_types', 'property_name']
+    labels_to_remove = ['listing_id', 'title', 'property_details_url', 'elevation', 'address', 'available_unit_types', 'property_name']
     # TODO Suggestion : Can we extract some information from the title?
     # TODO Suggestion : Can we mine some information from the url? Probably not, since the URLs lead to 404 error in most cases
     # elevation is simply 0 for all entries
@@ -78,8 +78,11 @@ def preprocess_data_for_classification(trainX, trainY, testX):
     # Remove corrupted lat lng Values
     trainX, testX = replace_corrupted_lat_lng(trainX), replace_corrupted_lat_lng(testX)
 
+    # Clean floor level values
+    trainX, testX = extract_floor_level(trainX), extract_floor_level(testX)
+
     # labels_to_category = ['property_type', 'tenure', 'furnishing', 'subzone', 'planning_area']
-    labels_to_category = ['subzone', 'planning_area', 'tenure', 'furnishing']
+    labels_to_category = ['subzone', 'planning_area', 'tenure', 'furnishing', 'floor_level']
     # TODO : property_type also contains information about types of available units, which needs to separately extracted
     trainX, category_to_int_dict = convert_to_categorical(trainX, col_labels=labels_to_category)
     testX, _ = convert_to_categorical(testX, col_labels=labels_to_category, category_to_int_dict=category_to_int_dict)
@@ -101,7 +104,7 @@ def preprocess_data_for_classification(trainX, trainY, testX):
     testX, _ = use_target_encoding(testX, None, col_labels=labels_to_target_encode, category_to_int_dict=category_to_target_dict)
 
     # Done after filling subzone values
-    labels_to_onehot = ['tenure', 'furnishing']
+    labels_to_onehot = ['tenure', 'furnishing', 'floor_level']
     trainX = convert_to_onehot(trainX, col_labels=labels_to_onehot, category_to_int_dict=category_to_int_dict)
     testX = convert_to_onehot(testX, col_labels=labels_to_onehot, category_to_int_dict=category_to_int_dict)
 
@@ -123,9 +126,6 @@ def preprocess_data_for_classification(trainX, trainY, testX):
     # trainX = trainX.fillna(trainX.mean())
     # testX = testX.fillna(trainX.mean())
 
-    # pd.set_option('display.max_columns', None)
-    # print(trainX.head())
-
-    print("Training Data Shape : ", np.shape(trainX))
+    # Remove NaN columns of categorical 
 
     return trainX, trainY, testX

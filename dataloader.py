@@ -44,6 +44,8 @@ def convert_to_onehot(df, col_labels=[], category_to_int_dict={}):
             raise "Category labels expected here. Should have been filled during categorical conversion"
 
         for ele in category_to_int_dict[col]:
+            # if isinstance(ele, float) and math.isnan(ele):
+            #     continue
             column_name = col + '_' + str(ele)
             df[column_name] = (df[col] == category_to_int_dict[col][ele])
 
@@ -103,6 +105,18 @@ def extract_unit_types(df):
     df['studio'] = df['available_unit_types'].apply(lambda x: check_membership('studio', x))
 
     df = df.drop(['available_unit_types'], axis=1)
+    return df
+
+def extract_floor_level(df):
+
+    def remove_additional_info(inp_str):
+        if isinstance(inp_str, float) and math.isnan(inp_str):
+            return inp_str
+
+        return inp_str.split(" ")[0]
+
+    df['floor_level'] = df['floor_level'].apply(lambda x: remove_additional_info(x))
+
     return df
 
 def replace_corrupted_lat_lng(df):
