@@ -11,3 +11,5 @@ Things Left to Do -
 - [ ] Recommendation System Reasoning and More Improvements
 - [ ] Define and Work on Task 3
 - [ ] Write Report
+- [ ] Readable Version of Codebase
+- [ ] Submit Everything
