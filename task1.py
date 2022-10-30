@@ -24,8 +24,6 @@ testX, _ = read_csv('data/test.csv')
 trainX, trainY, testX = preprocess_data_for_classification(trainX, trainY, testX)
 col_names = list(trainX.columns)
 
-print(col_names)
-
 assert not trainY.isnull().values.any() # Just a check to make sure all labels are available
 
 # Convert data to float and normalize

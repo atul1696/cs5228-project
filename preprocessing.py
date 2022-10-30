@@ -126,6 +126,4 @@ def preprocess_data_for_classification(trainX, trainY, testX):
     # trainX = trainX.fillna(trainX.mean())
     # testX = testX.fillna(trainX.mean())
 
-    # Remove NaN columns of categorical 
-
     return trainX, trainY, testX
