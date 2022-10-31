@@ -3,17 +3,28 @@ CS5228 : Semester Project
 
 Things Left to Do -
 
-- [ ] Final Sanity Pass Through Data Preprocessing (With Proper Explanation for Each Choice)
-- [ ] Use Auxiliary Data to Improve Classification
-- [ ] Final Kaggle Classification Pipeline and Comparing Various Algorithms
-- [ ] Recommendation System Baseline Method
-- [ ] Use Auxiliary Data for Recommendation (Maybe?)
-- [ ] Recommendation System Reasoning and More Improvements
-- [ ] Define and Work on Task 3
-- [ ] Create visualizations for Report
+### Tuesday
+- [ ] Final Sanity Pass Through Data Preprocessing (With Proper Explanation for Each Choice) - Pritam, Atul, Prakhar
+- [ ] Use Auxiliary Data to Improve Classification - Prakhar
+- [ ] Final Kaggle Classification Pipeline and Comparing Various Algorithms : Part 1 - Pritam
+- [ ] Switch to Sklearn Pipeline - Atul
+
+### Wednesday
+- [ ] Final Kaggle Classification Pipeline and Comparing Various Algorithms : Part 2 - Pritam
+- [ ] Write Report : Data Preprocessing and EDA - Pritam, Atul, Prakhar
+- [ ] Recommendation System Baseline Method : Literature Search - Atul
+- [ ] Define and Work on Task 3 - Prakhar
+
+### Thursday
+- [ ] Recommendation System Baseline Method - Pritam, Atul, Prakhar
+
+### Friday
 - [ ] Write Report : Introduction and Motivation
-- [ ] Write Report : Data Preprocessing and EDA
 - [ ] Write Report : Evaluations and Interpretation
+
+### Saturday
 - [ ] Write Report : Complete Report
 - [ ] Readable Version of Codebase
 - [ ] Submit Everything
+
+### Sunday
