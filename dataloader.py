@@ -119,6 +119,22 @@ def extract_floor_level(df):
 
     return df
 
+def extract_tenure(df):
+
+    def remove_additional_info(inp_str):
+        if isinstance(inp_str, float) and math.isnan(inp_str):
+            return inp_str
+
+        if "freehold" in inp_str:
+            return -1
+        else:
+            return inp_str.split("-")[0]
+
+    df['tenure_duration'] = df['tenure'].apply(lambda x: remove_additional_info(x))
+    df['is_freehold'] = (df['tenure'].str.contains("freehold")) & (~df['tenure'].isna())
+
+    return df
+
 def replace_corrupted_lat_lng(df):
     corrupted_lat_lng_dict = {(14.4848138, 121.0232316) : (1.316519, 103.857510),
                               (38.9427759, -77.06536425) : (1.312767, 103.886961),
