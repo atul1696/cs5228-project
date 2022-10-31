@@ -11,6 +11,9 @@ Things Left to Do -
 - [ ] Recommendation System Reasoning and More Improvements
 - [ ] Define and Work on Task 3
 - [ ] Create visualizations for Report
-- [ ] Write Report
+- [ ] Write Report : Introduction and Motivation
+- [ ] Write Report : Data Preprocessing and EDA
+- [ ] Write Report : Evaluations and Interpretation
+- [ ] Write Report : Complete Report
 - [ ] Readable Version of Codebase
 - [ ] Submit Everything
