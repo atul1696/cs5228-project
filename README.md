@@ -10,6 +10,7 @@ Things Left to Do -
 - [ ] Use Auxiliary Data for Recommendation (Maybe?)
 - [ ] Recommendation System Reasoning and More Improvements
 - [ ] Define and Work on Task 3
+- [ ] Create visualizations for Report
 - [ ] Write Report
 - [ ] Readable Version of Codebase
 - [ ] Submit Everything
