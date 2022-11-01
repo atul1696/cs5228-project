@@ -5,21 +5,23 @@ Things Left to Do -
 
 ### Tuesday
 - [ ] Reason Behind Removing Outliers - Atul
+- [ ] Property Type Target Encoding Grouping : Make it More Thorough - Prakhar
 - [ ] Final Sanity Pass Through Data Preprocessing (With Proper Explanation for Each Choice) - Pritam
 - [ ] Final Sanity Pass Through Data Preprocessing (With Proper Explanation for Each Choice) - Atul
-- [ ] Final Sanity Pass Through Data Preprocessing (With Proper Explanation for Each Choice) - Prakhar
+- [x] Final Sanity Pass Through Data Preprocessing (With Proper Explanation for Each Choice) - Prakhar
 - [x] Use Auxiliary Data to Improve Classification - Prakhar
-- [ ] Final Kaggle Classification Pipeline and Comparing Various Algorithms : Part 1 - Pritam
 - [ ] Switch to Sklearn Pipeline - Atul
+- [ ] Recommendation System Baseline Method : Literature Search - Pritam
 
 ### Wednesday
 - [ ] Improve the Usage of Auxiliary Data (For eg, Use 'Density' instead of 'Nearest') - Prakhar
-- [ ] Final Kaggle Classification Pipeline and Comparing Various Algorithms : Part 2 - Pritam
+- [ ] Final Kaggle Classification Pipeline and Comparing Various Algorithms : Part 1 - Pritam
 - [ ] Write Report : Data Preprocessing and EDA - Pritam, Atul, Prakhar
-- [ ] Recommendation System Baseline Method : Literature Search - Atul
+- [ ] Recommendation System Baseline Method : Literature Search - Atul, Pritam
 - [ ] Define and Work on Task 3 - Prakhar
 
 ### Thursday
+- [ ] Final Kaggle Classification Pipeline and Comparing Various Algorithms : Part 2 - Pritam
 - [ ] Recommendation System Baseline Method - Pritam, Atul, Prakhar
 
 ### Friday
