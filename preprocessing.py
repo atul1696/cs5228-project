@@ -136,25 +136,25 @@ def preprocess_data_for_classification(trainX, trainY, testX, auxSubzone=None, a
     trainX, category_to_target_dict = use_target_encoding(trainX, trainY, col_labels=labels_to_target_encode)
     testX, _ = use_target_encoding(testX, None, col_labels=labels_to_target_encode, category_to_int_dict=category_to_target_dict)
 
-    groups = trainX.groupby(['property_type', 'num_beds', 'num_baths', 'subzone']).indices
-    groups.update(trainX.groupby(['property_type', 'subzone']).indices)
-    groups.update(trainX.groupby(['property_type']).indices)
-    target_encoding = {
-        group: np.mean(np.take(trainY, index_list)) for group, index_list in groups.items()
-    }
-
-    def custom_map(row):
-        key1 = (row['property_type'], row['num_beds'], row['num_baths'], row['subzone'])
-        key2 = (row['property_type'], row['subzone'])
-        if key1 in target_encoding:
-            return target_encoding[key1]
-        elif key2 in target_encoding:
-            return target_encoding[key2]
-        else:
-            return target_encoding[row['property_type']]
-
-    trainX['property_type'] = trainX.apply(lambda r: custom_map(r), axis=1)
-    testX['property_type'] = testX.apply(lambda r: custom_map(r), axis=1)
+    # groups = trainX.groupby(['property_type', 'num_beds', 'num_baths', 'subzone']).indices
+    # groups.update(trainX.groupby(['property_type', 'subzone']).indices)
+    # groups.update(trainX.groupby(['property_type']).indices)
+    # target_encoding = {
+    #     group: np.mean(np.take(trainY, index_list)) for group, index_list in groups.items()
+    # }
+    #
+    # def custom_map(row):
+    #     key1 = (row['property_type'], row['num_beds'], row['num_baths'], row['subzone'])
+    #     key2 = (row['property_type'], row['subzone'])
+    #     if key1 in target_encoding:
+    #         return target_encoding[key1]
+    #     elif key2 in target_encoding:
+    #         return target_encoding[key2]
+    #     else:
+    #         return target_encoding[row['property_type']]
+    #
+    # trainX['property_type'] = trainX.apply(lambda r: custom_map(r), axis=1)
+    # testX['property_type'] = testX.apply(lambda r: custom_map(r), axis=1)
 
     # Done after filling subzone values
 

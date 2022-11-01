@@ -5,7 +5,7 @@ Things Left to Do -
 
 ### Tuesday
 - [ ] Reason Behind Removing Outliers - Atul
-- [ ] Property Type Target Encoding Grouping : Make it More Thorough - Prakhar
+- [x] Property Type Target Encoding Grouping : Make it More Thorough - Prakhar
 - [ ] Final Sanity Pass Through Data Preprocessing (With Proper Explanation for Each Choice) - Pritam
 - [ ] Final Sanity Pass Through Data Preprocessing (With Proper Explanation for Each Choice) - Atul
 - [x] Final Sanity Pass Through Data Preprocessing (With Proper Explanation for Each Choice) - Prakhar
