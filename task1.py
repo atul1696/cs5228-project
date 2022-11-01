@@ -79,9 +79,9 @@ from pprint import pprint
 pprint(gridsearch_regressor.cv_results_)
 pprint(gridsearch_regressor.best_params_)
 
-regressor = gridsearch_regressor.best_estimator_.regressor_
-
-feature_importance = sorted(dict(zip(col_names, regressor.feature_importances_)).items(), key=lambda k: k[1], reverse=True)
+regressor = gridsearch_regressor.best_estimator_
+base_regressor = gridsearch_regressor.best_estimator_.regressor_
+feature_importance = sorted(dict(zip(col_names, base_regressor.feature_importances_)).items(), key=lambda k: k[1], reverse=True)
 print(feature_importance)
 
 regressor.fit(trainX, trainY)
