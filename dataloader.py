@@ -176,6 +176,17 @@ def fill_lat_lng_knn(df, col_label, nan_index, knngraph=None):
 
     return df, knngraph
 
+def append_auxiliary_data_subzone(df, int_to_category_dict, aux):
+    def subzone_map(inp, col_str):
+        if isinstance(inp, float) and math.isnan(inp):
+            return inp
+        row_index = aux.index[aux['name'] == int_to_category_dict[inp]].tolist()
+        return aux[col_str].iloc[row_index[0]]
+
+    df['subzone_area_size'] = df['subzone'].apply(lambda x: subzone_map(x, 'area_size'))
+
+    return df
+
 def create_k_fold_validation(X, Y, k=10):
     chunk_size = len(X)//k
     for ite in range(k):

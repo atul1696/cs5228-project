@@ -21,7 +21,9 @@ from kaggle_submission import create_submission
 trainX, trainY = read_csv('data/train.csv', ylabel='price')
 testX, _ = read_csv('data/test.csv')
 
-trainX, trainY, testX = preprocess_data_for_classification(trainX, trainY, testX)
+auxSubzone, _ = read_csv('data/auxiliary-data/sg-subzones.csv')
+
+trainX, trainY, testX = preprocess_data_for_classification(trainX, trainY, testX, auxSubzone=auxSubzone)
 col_names = list(trainX.columns)
 
 assert not trainY.isnull().values.any() # Just a check to make sure all labels are available
@@ -40,21 +42,31 @@ trainY = scalerY.transform(trainY.reshape(-1, 1)).reshape(-1)
 trainX, trainY = shuffle(trainX, trainY, random_state=0)
 
 gridsearch = False
-if gridsearch:
-    # estimator = DecisionTreeRegressor(random_state=0)
-    # parameters = {"criterion" : ["squared_error", "friedman_mse", "poisson"],
-    #               "max_depth" : [None, 1, 5, 10, 20],
-    #               "min_samples_split" : [2, 5, 10],
-    #               "min_samples_leaf" : [1, 2, 5, 10]}
-    estimator = Ridge(random_state=0)
-    parameters = {"alpha" : [0.1, 0.5, 1., 2., 5.],
-                  "tol" : [1e-2, 1e-3, 1e-4],
-                  "solver" : ['svd', 'cholesky', 'lsqr', 'sparse_cg', 'sag', 'saga']}
-    regressor = GridSearchCV(estimator, parameters, scoring='neg_root_mean_squared_error', verbose=4)
-    regressor.fit(trainX, trainY)
-    print("Best Hypereparameter Setting")
-    print(regressor.best_params_)
-    exit()
+if not gridsearch:
+    regressor = DecisionTreeRegressor(random_state=0)
+    kfold_iterator = create_k_fold_validation(trainX, trainY, k=10)
+    rmse_arr = []
+    rmse_train_arr = []
+    for k, (X, Y, Xval, Yval) in enumerate(tqdm(kfold_iterator)):
+        regressor.fit(X, Y)
+
+        Ypred = regressor.predict(Xval)
+        Ypred, Yval = scalerY.inverse_transform(Ypred.reshape(-1, 1)).reshape(-1), scalerY.inverse_transform(Yval.reshape(-1, 1)).reshape(-1)
+        rmse = mean_squared_error(Yval, Ypred, squared=False)
+        rmse_arr.append(rmse)
+
+        Ypred_train = regressor.predict(X)
+        Ypred_train, Y = scalerY.inverse_transform(Ypred_train.reshape(-1, 1)).reshape(-1), scalerY.inverse_transform(Y.reshape(-1, 1)).reshape(-1)
+        rmse_train = mean_squared_error(Y, Ypred_train, squared=False)
+        rmse_train_arr.append(rmse_train)
+
+    print("Mean K-Fold Validation Error : ", np.mean(rmse_arr))
+    print("Median K-Fold Validation Error : ", np.median(rmse_arr))
+    print("Maximum K-Fold Validation Error : ", np.max(rmse_arr))
+    print("Mean K-Fold Train Error : ", np.mean(rmse_train_arr))
+    print("Median K-Fold Train Error : ", np.median(rmse_train_arr))
+    print("Maximum K-Fold Train Error : ", np.max(rmse_train_arr))
+
 else:
     # regressor = DummyRegressor(strategy="mean")
     regressor = DecisionTreeRegressor(random_state=0) # The best tuned model
@@ -71,34 +83,14 @@ else:
         return rmse
     regressor = GridSearchCV(RandomForestRegressor(random_state=0, n_jobs=-1), param_grid=parameters, scoring=make_scorer(rmse, greater_is_better=False), n_jobs=-1, cv=10, verbose=3)
 
-results = regressor.fit(trainX, trainY)
+    results = regressor.fit(trainX, trainY)
 
-# kfold_iterator = create_k_fold_validation(trainX, trainY, k=10)
-# rmse_arr = []
-# rmse_train_arr = []
-# for k, (X, Y, Xval, Yval) in enumerate(tqdm(kfold_iterator)):
-#     regressor.fit(X, Y)
+    from pprint import pprint
+    pprint(regressor.cv_results_)
+    pprint(regressor.best_params_)
 
-#     Ypred = regressor.predict(Xval)
-#     Ypred, Yval = scalerY.inverse_transform(Ypred.reshape(-1, 1)).reshape(-1), scalerY.inverse_transform(Yval.reshape(-1, 1)).reshape(-1)
-#     rmse = mean_squared_error(Yval, Ypred, squared=False)
-#     rmse_arr.append(rmse)
+    feature_importance = sorted(dict(zip(col_names, regressor.feature_importances_)).items(), key=lambda k: k[1], reverse=True)
 
-#     Ypred_train = regressor.predict(X)
-#     Ypred_train, Y = scalerY.inverse_transform(Ypred_train.reshape(-1, 1)).reshape(-1), scalerY.inverse_transform(Y.reshape(-1, 1)).reshape(-1)
-#     rmse_train = mean_squared_error(Y, Ypred_train, squared=False)
-#     rmse_train_arr.append(rmse_train)
-from pprint import pprint
-# print("Mean K-Fold Validation Error : ", np.mean(rmse_arr))
-# print("Median K-Fold Validation Error : ", np.median(rmse_arr))
-# print("Maximum K-Fold Validation Error : ", np.max(rmse_arr))
-# print("Mean K-Fold Train Error : ", np.mean(rmse_train_arr))
-# print("Median K-Fold Train Error : ", np.median(rmse_train_arr))
-# print("Maximum K-Fold Train Error : ", np.max(rmse_train_arr))
-pprint(regressor.cv_results_)
-pprint(regressor.best_params_)
-
-feature_importance = sorted(dict(zip(col_names, regressor.feature_importances_)).items(), key=lambda k: k[1], reverse=True)
 regressor.fit(trainX, trainY)
 testY = regressor.predict(testX)
 # testY = gs_regressor.predict(testX)

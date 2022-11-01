@@ -5,9 +5,13 @@ import pandas as pd
 
 from dataloader import remove_columns, convert_to_categorical, convert_to_continuous, convert_to_lowercase, convert_to_onehot, use_target_encoding
 from dataloader import extract_unit_types, extract_floor_level, extract_tenure, fill_lat_lng_knn, replace_corrupted_lat_lng
+from dataloader import append_auxiliary_data_subzone
 
 from sklearn.impute import KNNImputer
 
+
+def reverse_dict(inp_dict):
+    return {v:k for k, v in inp_dict.items()}
 
 def drop_outliers(trainX, trainY):
     index_list_to_remove = []
@@ -60,7 +64,8 @@ def preprocess_data_for_visualization(trainX, trainY, testX):
     return trainX_orig, trainY_orig
 
 
-def preprocess_data_for_classification(trainX, trainY, testX):
+def preprocess_data_for_classification(trainX, trainY, testX, auxSubzone=None):
+
     drop_outliers(trainX, trainY)
 
     # Convert all strings to lowercase for easy processing later
@@ -108,6 +113,10 @@ def preprocess_data_for_classification(trainX, trainY, testX):
     nan_index = category_to_int_dict['planning_area'][np.nan]
     trainX, knngraph_planning_area = fill_lat_lng_knn(trainX, 'planning_area', nan_index)
     testX, _ = fill_lat_lng_knn(testX, 'planning_area', nan_index, knngraph=knngraph_planning_area)
+
+    if auxSubzone is not None:
+        trainX = append_auxiliary_data_subzone(trainX, reverse_dict(category_to_int_dict['subzone']), auxSubzone)
+        testX = append_auxiliary_data_subzone(testX, reverse_dict(category_to_int_dict['subzone']), auxSubzone)
 
     labels_to_onehot = ['furnishing', 'floor_level']
     trainX = convert_to_onehot(trainX, col_labels=labels_to_onehot, category_to_int_dict=category_to_int_dict)
