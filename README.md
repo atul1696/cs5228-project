@@ -4,7 +4,10 @@ CS5228 : Semester Project
 Things Left to Do -
 
 ### Tuesday
-- [ ] Final Sanity Pass Through Data Preprocessing (With Proper Explanation for Each Choice) - Pritam, Atul, Prakhar
+- [ ] Reason Behind Removing Outliers - Atul
+- [ ] Final Sanity Pass Through Data Preprocessing (With Proper Explanation for Each Choice) - Pritam
+- [ ] Final Sanity Pass Through Data Preprocessing (With Proper Explanation for Each Choice) - Atul
+- [ ] Final Sanity Pass Through Data Preprocessing (With Proper Explanation for Each Choice) - Prakhar
 - [x] Use Auxiliary Data to Improve Classification - Prakhar
 - [ ] Final Kaggle Classification Pipeline and Comparing Various Algorithms : Part 1 - Pritam
 - [ ] Switch to Sklearn Pipeline - Atul
