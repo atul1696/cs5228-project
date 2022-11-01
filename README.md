@@ -10,7 +10,7 @@ Things Left to Do -
 - [ ] Final Sanity Pass Through Data Preprocessing (With Proper Explanation for Each Choice) - Atul
 - [x] Final Sanity Pass Through Data Preprocessing (With Proper Explanation for Each Choice) - Prakhar
 - [x] Use Auxiliary Data to Improve Classification - Prakhar
-- [ ] Switch to Sklearn Pipeline - Atul
+- [x] Switch to Sklearn Pipeline - Atul
 - [ ] Recommendation System Baseline Method : Literature Search - Pritam
 
 ### Wednesday

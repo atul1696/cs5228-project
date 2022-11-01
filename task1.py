@@ -4,6 +4,7 @@ from tqdm import tqdm
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.ensemble import RandomForestRegressor, AdaBoostRegressor
 from sklearn.linear_model import LinearRegression, Ridge
+from sklearn.compose import TransformedTargetRegressor
 from sklearn.dummy import DummyRegressor
 from sklearn.compose import TransformedTargetRegressor
 from sklearn.neural_network import MLPRegressor
@@ -16,6 +17,8 @@ from dataloader import read_csv
 from dataloader import create_k_fold_validation
 from preprocessing import preprocess_data_for_classification
 from kaggle_submission import create_submission
+
+from task1_pipeline import DataPreprocessor
 
 # pd.set_option('display.max_columns', None)
 
@@ -31,6 +34,9 @@ for ele in Infralist:
     auxInfraDict[ele] = auxInfra
 
 trainX, trainY, testX = preprocess_data_for_classification(trainX, trainY, testX, auxSubzone=auxSubzone, auxInfraDict=auxInfraDict)
+# dt_prep = DataPreprocessor()
+# trainX = dt_prep.fit_transform(trainX, trainY)
+# testX = dt_prep.transform(testX)
 col_names = list(trainX.columns)
 
 assert not trainY.isnull().values.any() # Just a check to make sure all labels are available
@@ -39,7 +45,7 @@ assert not trainY.isnull().values.any() # Just a check to make sure all labels a
 trainX, trainY, testX = trainX.astype(float).to_numpy(), trainY.astype(float).to_numpy(), testX.astype(float).to_numpy()
 
 scalerX = MinMaxScaler()
-scalerY = MinMaxScaler()
+# scalerY = MinMaxScaler()
 scalerX.fit(trainX)
 trainX, testX = scalerX.transform(trainX), scalerX.transform(testX)
 
@@ -64,7 +70,6 @@ regressor = DecisionTreeRegressor(random_state=0) # The best tuned model
 parameters = {}
 def rmse(Y_true, Y_pred):
     rmse = mean_squared_error(Y_true, Y_pred, squared=False)
-    print("RMSE: ", rmse)
     return rmse
 gridsearch_regressor = GridSearchCV(TransformedTargetRegressor(RandomForestRegressor(random_state=0, n_jobs=-1), transformer=MinMaxScaler()), param_grid=parameters, scoring=make_scorer(rmse, greater_is_better=False), n_jobs=-1, cv=10, verbose=3)
 

@@ -28,6 +28,37 @@ def convert_to_categorical(df, col_labels=[], category_to_int_dict={}):
 
     return df, category_to_int_dict
 
+def get_ordinal_encoding_dict(df, col_labels):
+    category_to_int_dict = {}
+    
+    for col in col_labels:
+        categories = df[col].unique()
+        category_to_int_dict[col] = {name: n for n, name in enumerate(categories)}
+
+    return category_to_int_dict
+
+def apply_ordinal_encoding(df, col_labels, category_to_int_dict):
+    for col in col_labels:
+        category_to_int = category_to_int_dict[col]
+        df[col] = df[col].map(category_to_int)
+    
+    return df
+    
+def get_target_encoding_dict(df, target, col_labels):
+    target_encoding_dict = {}
+    for col in col_labels:
+        if col not in target_encoding_dict:
+            target_encoding_dict[col] = {name: np.mean(np.take(target, indices)) for name, indices in df.groupby(col).indices.items()}
+
+    return target_encoding_dict
+
+def apply_target_encoding(df, col_labels, target_encoding_dict):
+    for col in col_labels:
+        target_encoding_col_dict = target_encoding_dict[col]
+        df[col] = df[col].map(target_encoding_col_dict)
+    
+    return df
+
 def use_target_encoding(df, target, col_labels=[], category_to_int_dict={}):
     for col in col_labels:
         if col not in category_to_int_dict:
@@ -198,6 +229,33 @@ def append_auxiliary_data_infra(df, col_name, aux):
 
     distances, indices = knngraph.kneighbors(np.stack([lat_df, lng_df], axis=-1))
     df['nearest_' + col_name] = distances
+
+    return df
+
+def get_lat_lng_knn(df, col_label, nan_index):
+    lat = df['lat'].astype(float).to_numpy()
+    lng = df['lng'].astype(float).to_numpy()
+    target = df[col_label].astype(float).to_numpy()
+    lat_cleaned = lat[target!=nan_index]
+    lng_cleaned = lng[target!=nan_index]
+    target_cleaned = target[target!=nan_index]
+
+    knngraph = KNeighborsClassifier(n_neighbors=5)
+    knngraph.fit(np.stack([lat_cleaned, lng_cleaned], axis=-1), target_cleaned)
+    return knngraph
+
+def apply_lat_lng_knn(df, col_label, nan_index, knngraph):
+    lat = df['lat'].astype(float).to_numpy()
+    lng = df['lng'].astype(float).to_numpy()
+    target = df[col_label].astype(float).to_numpy()
+
+    lat_nan = lat[target==nan_index]
+    lng_nan = lng[target==nan_index]
+
+    pred_target = knngraph.predict(np.stack([lat_nan, lng_nan], axis=-1))
+
+    target[target==nan_index] = pred_target
+    df[col_label] = target
 
     return df
 
