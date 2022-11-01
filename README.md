@@ -5,11 +5,12 @@ Things Left to Do -
 
 ### Tuesday
 - [ ] Final Sanity Pass Through Data Preprocessing (With Proper Explanation for Each Choice) - Pritam, Atul, Prakhar
-- [ ] Use Auxiliary Data to Improve Classification - Prakhar
+- [x] Use Auxiliary Data to Improve Classification - Prakhar
 - [ ] Final Kaggle Classification Pipeline and Comparing Various Algorithms : Part 1 - Pritam
 - [ ] Switch to Sklearn Pipeline - Atul
 
 ### Wednesday
+- [ ] Improve the Usage of Auxiliary Data (For eg, Use 'Density' instead of 'Nearest') - Prakhar
 - [ ] Final Kaggle Classification Pipeline and Comparing Various Algorithms : Part 2 - Pritam
 - [ ] Write Report : Data Preprocessing and EDA - Pritam, Atul, Prakhar
 - [ ] Recommendation System Baseline Method : Literature Search - Atul
