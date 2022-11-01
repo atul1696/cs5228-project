@@ -5,6 +5,7 @@ from sklearn.tree import DecisionTreeRegressor
 from sklearn.ensemble import RandomForestRegressor, AdaBoostRegressor
 from sklearn.linear_model import LinearRegression, Ridge
 from sklearn.dummy import DummyRegressor
+from sklearn.compose import TransformedTargetRegressor
 from sklearn.neural_network import MLPRegressor
 from sklearn.metrics import mean_squared_error, make_scorer
 from sklearn.utils import shuffle
@@ -41,8 +42,6 @@ scalerX = MinMaxScaler()
 scalerY = MinMaxScaler()
 scalerX.fit(trainX)
 trainX, testX = scalerX.transform(trainX), scalerX.transform(testX)
-scalerY.fit(trainY.reshape(-1, 1))
-trainY = scalerY.transform(trainY.reshape(-1, 1)).reshape(-1)
 
 # Random shuffling
 trainX, trainY = shuffle(trainX, trainY, random_state=0)
@@ -67,7 +66,7 @@ def rmse(Y_true, Y_pred):
     rmse = mean_squared_error(Y_true, Y_pred, squared=False)
     print("RMSE: ", rmse)
     return rmse
-gridsearch_regressor = GridSearchCV(RandomForestRegressor(random_state=0, n_jobs=-1), param_grid=parameters, scoring=make_scorer(rmse, greater_is_better=False), n_jobs=-1, cv=10, verbose=3)
+gridsearch_regressor = GridSearchCV(TransformedTargetRegressor(RandomForestRegressor(random_state=0, n_jobs=-1), transformer=MinMaxScaler()), param_grid=parameters, scoring=make_scorer(rmse, greater_is_better=False), n_jobs=-1, cv=10, verbose=3)
 
 results = gridsearch_regressor.fit(trainX, trainY)
 
@@ -75,7 +74,7 @@ from pprint import pprint
 pprint(gridsearch_regressor.cv_results_)
 pprint(gridsearch_regressor.best_params_)
 
-regressor = gridsearch_regressor.best_estimator_
+regressor = gridsearch_regressor.best_estimator_.regressor_
 
 feature_importance = sorted(dict(zip(col_names, regressor.feature_importances_)).items(), key=lambda k: k[1], reverse=True)
 print(feature_importance)
@@ -83,6 +82,4 @@ print(feature_importance)
 regressor.fit(trainX, trainY)
 testY = regressor.predict(testX)
 # testY = gs_regressor.predict(testX)
-testY = scalerY.inverse_transform(testY.reshape(-1, 1)).reshape(-1)
-
 create_submission(testY, 'baseline-submission.csv')
