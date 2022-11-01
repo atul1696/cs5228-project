@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import math
 
-from sklearn.neighbors import KNeighborsClassifier
+from sklearn.neighbors import KNeighborsClassifier, NearestNeighbors
 
 def read_csv(filename, ylabel=None):
     df = pd.read_csv(filename)
@@ -184,6 +184,20 @@ def append_auxiliary_data_subzone(df, int_to_category_dict, aux):
         return aux[col_str].iloc[row_index[0]]
 
     df['subzone_area_size'] = df['subzone'].apply(lambda x: subzone_map(x, 'area_size'))
+
+    return df
+
+def append_auxiliary_data_infra(df, col_name, aux):
+    lat = aux['lat'].astype(float).to_numpy()
+    lng = aux['lng'].astype(float).to_numpy()
+    knngraph = NearestNeighbors(n_neighbors=1)
+    knngraph.fit(np.stack([lat, lng], axis=-1), np.ones(lat.shape))
+
+    lat_df = df['lat'].astype(float).to_numpy()
+    lng_df = df['lng'].astype(float).to_numpy()
+
+    distances, indices = knngraph.kneighbors(np.stack([lat_df, lng_df], axis=-1))
+    df['nearest_' + col_name] = distances
 
     return df
 

@@ -5,7 +5,7 @@ import pandas as pd
 
 from dataloader import remove_columns, convert_to_categorical, convert_to_continuous, convert_to_lowercase, convert_to_onehot, use_target_encoding
 from dataloader import extract_unit_types, extract_floor_level, extract_tenure, fill_lat_lng_knn, replace_corrupted_lat_lng
-from dataloader import append_auxiliary_data_subzone
+from dataloader import append_auxiliary_data_subzone, append_auxiliary_data_infra
 
 from sklearn.impute import KNNImputer
 
@@ -64,7 +64,7 @@ def preprocess_data_for_visualization(trainX, trainY, testX):
     return trainX_orig, trainY_orig
 
 
-def preprocess_data_for_classification(trainX, trainY, testX, auxSubzone=None):
+def preprocess_data_for_classification(trainX, trainY, testX, auxSubzone=None, auxInfraDict={}):
 
     drop_outliers(trainX, trainY)
 
@@ -90,6 +90,10 @@ def preprocess_data_for_classification(trainX, trainY, testX, auxSubzone=None):
 
     # Remove corrupted lat lng Values
     trainX, testX = replace_corrupted_lat_lng(trainX), replace_corrupted_lat_lng(testX)
+
+    for ele in auxInfraDict:
+        trainX = append_auxiliary_data_infra(trainX, ele, auxInfraDict[ele])
+        testX = append_auxiliary_data_infra(testX, ele, auxInfraDict[ele])
 
     # Clean floor level values
     trainX, testX = extract_floor_level(trainX), extract_floor_level(testX)

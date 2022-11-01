@@ -23,7 +23,13 @@ testX, _ = read_csv('data/test.csv')
 
 auxSubzone, _ = read_csv('data/auxiliary-data/sg-subzones.csv')
 
-trainX, trainY, testX = preprocess_data_for_classification(trainX, trainY, testX, auxSubzone=auxSubzone)
+auxInfraDict = {}
+Infralist = ['sg-commerical-centres', 'sg-mrt-stations', 'sg-primary-schools', 'sg-secondary-schools', 'sg-shopping-malls']
+for ele in Infralist:
+    auxInfra, _ = read_csv('data/auxiliary-data/' + ele + '.csv')
+    auxInfraDict[ele] = auxInfra
+
+trainX, trainY, testX = preprocess_data_for_classification(trainX, trainY, testX, auxSubzone=auxSubzone, auxInfraDict=auxInfraDict)
 col_names = list(trainX.columns)
 
 assert not trainY.isnull().values.any() # Just a check to make sure all labels are available
