@@ -41,7 +41,7 @@ trainY = scalerY.transform(trainY.reshape(-1, 1)).reshape(-1)
 # Random shuffling
 trainX, trainY = shuffle(trainX, trainY, random_state=0)
 
-gridsearch = False
+gridsearch = True
 if not gridsearch:
     regressor = DecisionTreeRegressor(random_state=0)
     kfold_iterator = create_k_fold_validation(trainX, trainY, k=10)
@@ -72,24 +72,28 @@ else:
     regressor = DecisionTreeRegressor(random_state=0) # The best tuned model
     # regressor = Ridge(random_state=0, alpha=5.0, solver='lsqr', tol=0.01)
     # regressor = MLPRegressor(random_state=0, learning_rate_init=0.1, max_iter=500
-    parameters = {
-        'n_estimators': [20, 50, 100, 200, 500],
-        'max_depth': [5, 10, 15, 20, 50],
-        'min_samples_split': [2, 10, 20, 50, 100],
-    }
+    # parameters = {
+    #     'n_estimators': [20, 50, 100, 200, 500],
+    #     'max_depth': [5, 10, 15, 20, 50],
+    #     'min_samples_split': [2, 10, 20, 50, 100],
+    # }
+    parameters = {}
     def rmse(Y_true, Y_pred):
         rmse = mean_squared_error(Y_true, Y_pred, squared=False)
         print("RMSE: ", rmse)
         return rmse
-    regressor = GridSearchCV(RandomForestRegressor(random_state=0, n_jobs=-1), param_grid=parameters, scoring=make_scorer(rmse, greater_is_better=False), n_jobs=-1, cv=10, verbose=3)
+    gridsearch_regressor = GridSearchCV(RandomForestRegressor(random_state=0, n_jobs=-1), param_grid=parameters, scoring=make_scorer(rmse, greater_is_better=False), n_jobs=-1, cv=10, verbose=3)
 
-    results = regressor.fit(trainX, trainY)
+    results = gridsearch_regressor.fit(trainX, trainY)
 
     from pprint import pprint
-    pprint(regressor.cv_results_)
-    pprint(regressor.best_params_)
+    pprint(gridsearch_regressor.cv_results_)
+    pprint(gridsearch_regressor.best_params_)
+
+    regressor = gridsearch_regressor.best_estimator_
 
     feature_importance = sorted(dict(zip(col_names, regressor.feature_importances_)).items(), key=lambda k: k[1], reverse=True)
+    print(feature_importance)
 
 regressor.fit(trainX, trainY)
 testY = regressor.predict(testX)
