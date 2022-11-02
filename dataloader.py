@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import math
 
-from sklearn.neighbors import KNeighborsClassifier, NearestNeighbors
+from sklearn.neighbors import KNeighborsClassifier, NearestNeighbors, KernelDensity
 
 def read_csv(filename, ylabel=None):
     df = pd.read_csv(filename)
@@ -30,7 +30,7 @@ def convert_to_categorical(df, col_labels=[], category_to_int_dict={}):
 
 def get_ordinal_encoding_dict(df, col_labels):
     category_to_int_dict = {}
-    
+
     for col in col_labels:
         categories = df[col].unique()
         category_to_int_dict[col] = {name: n for n, name in enumerate(categories)}
@@ -41,9 +41,9 @@ def apply_ordinal_encoding(df, col_labels, category_to_int_dict):
     for col in col_labels:
         category_to_int = category_to_int_dict[col]
         df[col] = df[col].map(category_to_int)
-    
+
     return df
-    
+
 def get_target_encoding_dict(df, target, col_labels):
     target_encoding_dict = {}
     for col in col_labels:
@@ -56,7 +56,7 @@ def apply_target_encoding(df, col_labels, target_encoding_dict):
     for col in col_labels:
         target_encoding_col_dict = target_encoding_dict[col]
         df[col] = df[col].map(target_encoding_col_dict)
-    
+
     return df
 
 def use_target_encoding(df, target, col_labels=[], category_to_int_dict={}):
@@ -223,12 +223,16 @@ def append_auxiliary_data_infra(df, col_name, aux):
     lng = aux['lng'].astype(float).to_numpy()
     knngraph = NearestNeighbors(n_neighbors=1)
     knngraph.fit(np.stack([lat, lng], axis=-1), np.ones(lat.shape))
+    # kde = KernelDensity(kernel='gaussian')
+    # kde.fit(np.stack([lat, lng], axis=-1))
 
     lat_df = df['lat'].astype(float).to_numpy()
     lng_df = df['lng'].astype(float).to_numpy()
 
     distances, indices = knngraph.kneighbors(np.stack([lat_df, lng_df], axis=-1))
+    # log_density = kde.score_samples(np.stack([lat_df, lng_df], axis=-1))
     df['nearest_' + col_name] = distances
+    # df['density_' + col_name] = log_density
 
     return df
 
