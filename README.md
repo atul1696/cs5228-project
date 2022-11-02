@@ -4,7 +4,7 @@ CS5228 : Semester Project
 Things Left to Do -
 
 ### Tuesday
-- [ ] Reason Behind Removing Outliers - Atul
+- [x] Reason Behind Removing Outliers - Atul
 - [x] Property Type Target Encoding Grouping : Make it More Thorough - Prakhar
 - [ ] Final Sanity Pass Through Data Preprocessing (With Proper Explanation for Each Choice) - Pritam
 - [ ] Final Sanity Pass Through Data Preprocessing (With Proper Explanation for Each Choice) - Atul
