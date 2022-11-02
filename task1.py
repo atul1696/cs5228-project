@@ -15,10 +15,9 @@ from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
 
 from dataloader import read_csv
 from dataloader import create_k_fold_validation
-from preprocessing import preprocess_data_for_classification
 from kaggle_submission import create_submission
 
-from task1_pipeline import DataPreprocessor
+from preprocessing import DataPreprocessor
 
 # pd.set_option('display.max_columns', None)
 
@@ -33,21 +32,15 @@ for ele in Infralist:
     auxInfra, _ = read_csv('data/auxiliary-data/' + ele + '.csv')
     auxInfraDict[ele] = auxInfra
 
-trainX, trainY, testX = preprocess_data_for_classification(trainX, trainY, testX, auxSubzone=auxSubzone, auxInfraDict=auxInfraDict)
-# dt_prep = DataPreprocessor()
-# trainX = dt_prep.fit_transform(trainX, trainY)
-# testX = dt_prep.transform(testX)
+data_preprocessor = DataPreprocessor(auxSubzone, auxInfraDict)
+trainX, trainY = data_preprocessor.fit_transform(trainX, trainY)
+testX = data_preprocessor.transform(testX)
 col_names = list(trainX.columns)
 
 assert not trainY.isnull().values.any() # Just a check to make sure all labels are available
 
 # Convert data to float and normalize
 trainX, trainY, testX = trainX.astype(float).to_numpy(), trainY.astype(float).to_numpy(), testX.astype(float).to_numpy()
-
-scalerX = MinMaxScaler()
-# scalerY = MinMaxScaler()
-scalerX.fit(trainX)
-trainX, testX = scalerX.transform(trainX), scalerX.transform(testX)
 
 # Random shuffling
 trainX, trainY = shuffle(trainX, trainY, random_state=0)

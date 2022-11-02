@@ -273,3 +273,6 @@ def create_k_fold_validation(X, Y, k=10):
         valY = Y[ite*chunk_size:(ite+1)*chunk_size]
 
         yield trainX, trainY, valX, valY
+
+def reverse_dict(inp_dict):
+    return {v:k for k, v in inp_dict.items()}
