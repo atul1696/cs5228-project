@@ -52,19 +52,21 @@ def round_off_columns(df):
     return df
 
 
-def preprocess_data_for_visualization(trainX, trainY, testX):
-    trainX, testX = convert_to_lowercase(trainX), convert_to_lowercase(testX)
-    trainX_orig, trainY_orig = copy.deepcopy(trainX), copy.deepcopy(trainY)
-    drop_outliers(trainX_orig, trainY_orig)
-    trainX_orig = drop_unnecessary_columns(trainX_orig)
+def preprocess_data_for_visualization(trainX, trainY):
+    drop_outliers(trainX, trainY)
 
-    trainX_processed, trainY_processed, _ = preprocess_data_for_classification(trainX, trainY, testX)
-
-    columns_to_copy = ['built_year', 'num_beds', 'num_baths', 'size_sqft']
-    for col in columns_to_copy:
-        trainX_orig[col] = trainX_processed[col]
-
-    return trainX_orig, trainY_orig
+    # trainX, testX = convert_to_lowercase(trainX), convert_to_lowercase(testX)
+    # trainX_orig, trainY_orig = copy.deepcopy(trainX), copy.deepcopy(trainY)
+    # drop_outliers(trainX_orig, trainY_orig)
+    # trainX_orig = drop_unnecessary_columns(trainX_orig)
+    #
+    # trainX_processed, trainY_processed, _ = preprocess_data_for_classification(trainX, trainY, testX)
+    #
+    # columns_to_copy = ['built_year', 'num_beds', 'num_baths', 'size_sqft']
+    # for col in columns_to_copy:
+    #     trainX_orig[col] = trainX_processed[col]
+    #
+    # return trainX_orig, trainY_orig
 
 
 def preprocess_data_for_classification(trainX, trainY, testX, auxSubzone=None, auxInfraDict={}):
