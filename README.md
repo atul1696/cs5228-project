@@ -17,7 +17,7 @@ Things Left to Do -
 - [x] Improve the Usage of Auxiliary Data (For eg, Use 'Density' instead of 'Nearest') - Prakhar
 - [ ] Final Kaggle Classification Pipeline and Comparing Various Algorithms : Part 1 - Pritam
 - [ ] Write Report : Data Preprocessing and EDA - Pritam, Atul, Prakhar
-- [ ] Recommendation System Baseline Method : Literature Search - Atul, Pritam
+- [x] Recommendation System Baseline Method : Literature Search - Atul, Pritam
 - [x] Define Task 3 - Prakhar
 - [ ] Task 3 : Price of Old vs New - Prakhar
 
