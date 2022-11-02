@@ -157,7 +157,7 @@ def extract_tenure(df):
             return inp_str
 
         if "freehold" in inp_str:
-            return -1
+            return 10000
         else:
             return inp_str.split("-")[0]
 

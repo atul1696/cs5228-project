@@ -37,7 +37,7 @@ def drop_unnecessary_columns(df):
 
 def drop_remaining_columns(df):
     cols = [col for col in df.columns if "floor_level" in col]
-    cols.extend(['address', 'property_name','tenure'])
+    cols.extend(['address', 'property_name'])
     df = remove_columns(df, cols)
     return df
 
@@ -78,14 +78,6 @@ def preprocess_data_for_classification(trainX, trainY, testX, auxSubzone=None, a
     trainX["property_type"] = trainX["property_type"].replace(r'hdb.*', 'hdb', regex=True)
     testX["property_type"] = testX["property_type"].replace(r'hdb.*', 'hdb', regex=True)
 
-    # All leasehold in 100 year range are equivalent to 99-year leasehold, and all leashold in 900_ range are quivalent to freehold
-    # for leasehold in ['947-year leasehold', '929-year leasehold', '946-year leasehold', '956-year leasehold', '999-year leasehold']:
-    #     trainX['tenure'] = trainX['tenure'].replace(leasehold, 'freehold')
-    #     testX['tenure'] = testX['tenure'].replace(leasehold, 'freehold')
-    # for leasehold in ['100-year leasehold', '102-year leasehold', '110-year leasehold', '103-year leasehold']:
-    #     trainX['tenure'] = trainX['tenure'].replace(leasehold, '99-year leasehold')
-    #     testX['tenure'] = testX['tenure'].replace(leasehold, '99-year leasehold')
-
     trainX, testX = drop_unnecessary_columns(trainX), drop_unnecessary_columns(testX)
 
     # Remove corrupted lat lng Values
@@ -99,6 +91,15 @@ def preprocess_data_for_classification(trainX, trainY, testX, auxSubzone=None, a
     trainX, testX = extract_floor_level(trainX), extract_floor_level(testX)
 
     trainX, testX = extract_tenure(trainX), extract_tenure(testX)
+
+    # All leasehold in 100 year range are equivalent to 99-year leasehold, and all leashold in 900_ range are quivalent to freehold
+    # for leasehold in ['947-year leasehold', '929-year leasehold', '946-year leasehold', '956-year leasehold', '999-year leasehold']:
+    #     trainX['tenure'] = trainX['tenure'].replace(leasehold, 'freehold')
+    #     testX['tenure'] = testX['tenure'].replace(leasehold, 'freehold')
+    # for leasehold in ['100-year leasehold', '102-year leasehold', '110-year leasehold', '103-year leasehold']:
+    #     trainX['tenure'] = trainX['tenure'].replace(leasehold, '99-year leasehold')
+    #     testX['tenure'] = testX['tenure'].replace(leasehold, '99-year leasehold')
+
 
     # labels_to_category = ['property_type', 'tenure', 'furnishing', 'subzone', 'planning_area']
     labels_to_category = ['property_type', 'subzone', 'planning_area', 'tenure', 'furnishing', 'floor_level', 'address', 'property_name']
