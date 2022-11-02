@@ -169,7 +169,8 @@ def extract_tenure(df):
 def replace_corrupted_lat_lng(df):
     corrupted_lat_lng_dict = {(14.4848138, 121.0232316) : (1.316519, 103.857510),
                               (38.9427759, -77.06536425) : (1.312767, 103.886961),
-                              (69.4867678, 20.1844341) : (1.314094, 103.806833)}
+                              (69.4867678, 20.1844341) : (1.314094, 103.806833),
+                              (1.312767, -77.0653642528485) : (1.312767, 103.886961),}
 
     def replace_corrupted_values(x, dict):
         if x in dict:
@@ -223,16 +224,16 @@ def append_auxiliary_data_infra(df, col_name, aux):
     lng = aux['lng'].astype(float).to_numpy()
     knngraph = NearestNeighbors(n_neighbors=1)
     knngraph.fit(np.stack([lat, lng], axis=-1), np.ones(lat.shape))
-    # kde = KernelDensity(kernel='gaussian')
-    # kde.fit(np.stack([lat, lng], axis=-1))
+    kde = KernelDensity(kernel='gaussian', bandwidth=0.01)
+    kde.fit(np.stack([lat, lng], axis=-1))
 
     lat_df = df['lat'].astype(float).to_numpy()
     lng_df = df['lng'].astype(float).to_numpy()
 
     distances, indices = knngraph.kneighbors(np.stack([lat_df, lng_df], axis=-1))
-    # log_density = kde.score_samples(np.stack([lat_df, lng_df], axis=-1))
     df['nearest_' + col_name] = distances
-    # df['density_' + col_name] = log_density
+    log_density = kde.score_samples(np.stack([lat_df, lng_df], axis=-1))
+    df['density_' + col_name] = log_density
 
     return df
 
