@@ -13,11 +13,12 @@ from sklearn.impute import KNNImputer
 def reverse_dict(inp_dict):
     return {v:k for k, v in inp_dict.items()}
 
+
 def drop_outliers(trainX, trainY):
     index_list_to_remove = []
+    index_list_to_remove.extend([14218, 15027, 5976, 4347, 16264, 2701, 18446, 663, 4287, 15637, 9750, 13461, 19587])
     index_list_to_remove.extend(trainX.index[~(trainX['size_sqft'] > 300)].tolist())
     index_list_to_remove.extend(trainY.index[~((trainY > 0) & (trainY < 2 * 10 ** 8))].tolist())
-    index_list_to_remove.extend([14218, 15027, 4347, 663, 19587, 13461])
 
     trainX.drop(index=index_list_to_remove, inplace=True)
     trainY.drop(index=index_list_to_remove, inplace=True)
@@ -35,14 +36,16 @@ def drop_unnecessary_columns(df):
 
     return df
 
+
 def drop_remaining_columns(df):
     cols = [col for col in df.columns if "floor_level" in col]
     cols.extend(['address', 'tenure', 'property_name'])
     df = remove_columns(df, cols)
     return df
 
+
 def round_off_columns(df):
-    labels_to_round_off = ['built_year', 'num_beds', 'num_baths']
+    labels_to_round_off = ['built_year', 'num_beds', 'num_baths', 'tenure_duration', 'total_num_units']
     for col in labels_to_round_off:
         df[col] = df[col].apply(np.ceil)
 
