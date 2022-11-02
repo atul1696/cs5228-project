@@ -37,7 +37,7 @@ def drop_unnecessary_columns(df):
 
 def drop_remaining_columns(df):
     cols = [col for col in df.columns if "floor_level" in col]
-    cols.extend(['address', 'property_name'])
+    cols.extend(['address', 'tenure', 'property_name'])
     df = remove_columns(df, cols)
     return df
 
