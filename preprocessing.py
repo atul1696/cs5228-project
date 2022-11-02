@@ -53,6 +53,7 @@ def round_off_columns(df):
 
 
 def preprocess_data_for_visualization(trainX, trainY):
+    trainX = convert_to_lowercase(trainX)
     drop_outliers(trainX, trainY)
 
     # trainX, testX = convert_to_lowercase(trainX), convert_to_lowercase(testX)
