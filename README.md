@@ -18,11 +18,13 @@ Things Left to Do -
 - [ ] Final Kaggle Classification Pipeline and Comparing Various Algorithms : Part 1 - Pritam
 - [ ] Write Report : Data Preprocessing and EDA - Pritam, Atul, Prakhar
 - [ ] Recommendation System Baseline Method : Literature Search - Atul, Pritam
-- [ ] Define and Work on Task 3 - Prakhar
+- [x] Define Task 3 - Prakhar
+- [ ] Task 3 : Price of Old vs New - Prakhar
 
 ### Thursday
 - [ ] Final Kaggle Classification Pipeline and Comparing Various Algorithms : Part 2 - Pritam
 - [ ] Recommendation System Baseline Method - Pritam, Atul, Prakhar
+- [ ] Task 3 : Size, Num beds, etc. of Old vs New
 
 ### Friday
 - [ ] Write Report : Introduction and Motivation
