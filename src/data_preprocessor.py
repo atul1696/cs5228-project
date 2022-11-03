@@ -225,6 +225,7 @@ class DataPreprocessor:
 
         return X_copy
 
+
 if __name__ == '__main__':
     trainX, trainY = read_csv('data/train.csv', ylabel='price')
     col_names = list(trainX.columns)
