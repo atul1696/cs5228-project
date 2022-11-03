@@ -26,9 +26,9 @@ Things Left to Do -
 - [ ] kNN, Cosine Similarity - Atul
 - [ ] Add Auxiliary Data into Sklearn Pipeline - Atul
 - [ ] Weight features to allow customization for user - Prakhar
-- [ ] Task 3 : Size, Num beds, etc. of Old vs New - Prakhar
-- [ ] Task 3 : Condos vs HDB - Due to Foreigners; Tenure across time - Prakhar
-- [ ] Task 3 : Which areas are being renovated? - Help LTA to make decisions like roads, MRT, etc. - Prakhar
+- [x] Task 3 : Size, Num beds, etc. of Old vs New - Prakhar
+- [x] Task 3 : Condos vs HDB - Due to Foreigners; Tenure across time - Prakhar
+- [x] Task 3 : Which areas are being renovated? - Help LTA to make decisions like roads, MRT, etc. - Prakhar
 
 ### Friday
 - [ ] Write Report : Introduction and Motivation
