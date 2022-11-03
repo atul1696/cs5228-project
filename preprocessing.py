@@ -166,7 +166,7 @@ class DataPreprocessor:
             DataImputer(),
             DataTargetEncoder(),
             NanHandler(self.col_names),
-            MinMaxScaler()
+            # MinMaxScaler()
         )
 
         X = pd.DataFrame(self.preprocessing_pipeline.fit_transform(
