@@ -149,14 +149,14 @@ class DataPreprocessor:
 
         return X, y
 
-    def fit_transform(self, X, y):
+    def fit_transform(self, X, y, use_min_max_scaling=False):
         X, y = self.drop_outliers(X, y)
         self.ordinal_encoded_labels = ['property_type', 'subzone', 'planning_area',
                                        'tenure', 'furnishing', 'floor_level', 'address', 'property_name']
         self.ordinal_encoding_dict = {}
         self.col_names = []
 
-        self.preprocessing_pipeline = make_pipeline(
+        pipeline_steps = [
             DataTransformer(self.ordinal_encoded_labels,
                             self.ordinal_encoding_dict, self.auxiliary_infrastructure_dict),
             LatLngImputer(self.ordinal_encoding_dict, 'subzone',
@@ -166,8 +166,12 @@ class DataPreprocessor:
             DataImputer(),
             DataTargetEncoder(),
             NanHandler(self.col_names),
-            MinMaxScaler()
-        )
+        ]
+
+        if use_min_max_scaling:
+            pipeline_steps.append(MinMaxScaler())
+
+        self.preprocessing_pipeline = make_pipeline(*pipeline_steps)
 
         X = pd.DataFrame(self.preprocessing_pipeline.fit_transform(
             X, y), columns=self.col_names)

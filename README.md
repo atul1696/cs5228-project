@@ -24,7 +24,7 @@ Things Left to Do -
 - [ ] Final Kaggle Classification Pipeline and Comparing Various Algorithms : Part 1 - Pritam
 - [ ] Final Kaggle Classification Pipeline and Comparing Various Algorithms : Part 2 - Pritam
 - [ ] kNN, Cosine Similarity - Atul
-- [ ] Add Auxiliary Data into Sklearn Pipeline - Atul
+- [x] Add Auxiliary Data into Sklearn Pipeline - Atul
 - [ ] Weight features to allow customization for user - Prakhar
 - [x] Task 3 : Size, Num beds, etc. of Old vs New - Prakhar
 - [x] Task 3 : Condos vs HDB - Due to Foreigners; Tenure across time - Prakhar
