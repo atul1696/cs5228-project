@@ -36,6 +36,18 @@ class DataTransformer(BaseEstimator, TransformerMixin):
             X, self.labels_to_encode, self.ordinal_encoding_dict)
         return X
 
+class DataCleaner(BaseEstimator, TransformerMixin):
+
+    def fit(self, X, y=None):
+        data = pd.concat([X, y], axis=1)
+        duplicate_index_list = data[data.duplicated()].index
+        X.drop(duplicate_index_list, inplace=True)
+        y.drop(duplicate_index_list, inplace=True)
+        return self
+
+    def transform(self, X, y=None):
+        return X
+
 
 class LatLngImputer(BaseEstimator, TransformerMixin):
 
@@ -78,8 +90,11 @@ class DataImputer(BaseEstimator, TransformerMixin):
         for col in labels_to_round_off:
             X[col] = X[col].apply(np.round)
 
+        cols = ['tenure']
         if self.drop_property_details:
-            X = remove_columns(X, ['address', 'property_name', 'tenure'])
+            cols.extend(['address', 'property_name'])
+        
+        X = remove_columns(X, cols)
 
         return X
 
@@ -138,9 +153,7 @@ class DataPreprocessor:
 
     # Check outliers.ipynb for more details
     def drop_outliers(self, X, y):
-        index_list_to_remove = []
-        index_list_to_remove.extend(
-            [14218, 15027, 5976, 4347, 16264, 2701, 18446, 663, 4287, 15637, 9750, 13461, 19587])
+        index_list_to_remove = [14218, 15027, 5976, 4347, 16264, 2701, 18446, 663, 4287, 15637, 9750, 13461, 19587]
         index_list_to_remove.extend(X.index[~(
             (X['size_sqft'] > 300) & (X['size_sqft'] <= 30000))].tolist())
         index_list_to_remove.extend(
@@ -165,6 +178,7 @@ class DataPreprocessor:
         pipeline_steps = [
             DataTransformer(self.ordinal_encoded_labels,
                             self.ordinal_encoding_dict, self.auxiliary_infrastructure_dict),
+            DataCleaner(),
             LatLngImputer(self.ordinal_encoding_dict, 'subzone',
                           auxiliary_subzone=self.auxiliary_subzone),
             LatLngImputer(self.ordinal_encoding_dict, 'planning_area'),
@@ -181,6 +195,8 @@ class DataPreprocessor:
 
         X = pd.DataFrame(self.preprocessing_pipeline.fit_transform(
             X, y), columns=self.col_names)
+        y = y.reset_index(drop=True)
+
         return X, y
 
     def transform(self, X):
@@ -196,22 +212,28 @@ class DataPreprocessor:
 
         for col in self.one_hot_encoded_labels:
             one_hot_cols = list(i for i in X_copy.columns if col in i)
-            print(X_copy[one_hot_cols].idxmax(1))
             X_copy[col] = X_copy[one_hot_cols].idxmax(1).apply(lambda k: k.split("_")[-1])
             X_copy = remove_columns(X_copy, col_labels=one_hot_cols)
 
         for col in self.ordinal_encoded_labels:
-            if col not in self.one_hot_encoded_labels:
+            if col in X.columns and col not in self.one_hot_encoded_labels:
                 X_copy[col] = X_copy[col].map(reverse_dict(self.ordinal_encoding_dict[col]))
 
         return X_copy
 
 if __name__ == '__main__':
     trainX, trainY = read_csv('data/train.csv', ylabel='price')
-    testX, _ = read_csv('data/test.csv')
     col_names = list(trainX.columns)
-    dt_prep = DataPreprocessor()
-    trainX = dt_prep.fit_transform(trainX, trainY)
-    testX = dt_prep.transform(testX)
-    print(trainX.head())
-    print(testX.head())
+    auxSubzone, _ = read_csv('data/auxiliary-data/sg-subzones.csv')
+
+    auxInfraDict = {}
+    Infralist = ['sg-commerical-centres', 'sg-mrt-stations', 'sg-primary-schools', 'sg-secondary-schools', 'sg-shopping-malls']
+    for ele in Infralist:
+        auxInfra, _ = read_csv('data/auxiliary-data/' + ele + '.csv')
+    auxInfraDict[ele] = auxInfra
+    dt_prep = DataPreprocessor(auxSubzone, auxInfraDict)
+    trainX, trainY = dt_prep.fit_transform(trainX, trainY, drop_property_details=False)
+    print(trainX.isna().sum())
+    print(trainX.shape)
+    print(trainY.isna().sum())
+    print(trainY.shape)
