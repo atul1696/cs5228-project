@@ -62,9 +62,10 @@ class LatLngImputer(BaseEstimator, TransformerMixin):
 
 
 class DataImputer(BaseEstimator, TransformerMixin):
-    def __init__(self, knn_neighbors=7):
+    def __init__(self, drop_property_details, knn_neighbors=7):
         self.knn_imputer = KNNImputer(
             n_neighbors=knn_neighbors, weights='distance')
+        self.drop_property_details = drop_property_details
 
     def fit(self, X, y=None):
         self.knn_imputer.fit(X)
@@ -77,16 +78,17 @@ class DataImputer(BaseEstimator, TransformerMixin):
         for col in labels_to_round_off:
             X[col] = X[col].apply(np.round)
 
-        X = remove_columns(X, ['address', 'property_name', 'tenure'])
+        if self.drop_property_details:
+            X = remove_columns(X, ['address', 'property_name', 'tenure'])
 
         return X
 
 
 class DataOneHotEncoder(BaseEstimator, TransformerMixin):
 
-    def __init__(self, ordinal_encoding_dict):
+    def __init__(self, labels_to_onehot, ordinal_encoding_dict):
         self.ordinal_encoding_dict = ordinal_encoding_dict
-        self.labels_to_onehot = ['furnishing', 'floor_level']
+        self.labels_to_onehot = labels_to_onehot
 
     def fit(self, X, y=None):
         return self
@@ -99,13 +101,13 @@ class DataOneHotEncoder(BaseEstimator, TransformerMixin):
 
 class DataTargetEncoder(BaseEstimator, TransformerMixin):
 
-    def __init__(self):
-        self.labels_to_target_encode = [
-            'property_type', 'subzone', 'planning_area']
+    def __init__(self, labels_to_target_encode, target_encoding_dict):
+        self.labels_to_target_encode = labels_to_target_encode
+        self.category_to_target_dict = target_encoding_dict
 
     def fit(self, X, y=None):
-        self.category_to_target_dict = get_target_encoding_dict(
-            X, y, col_labels=self.labels_to_target_encode)
+        self.category_to_target_dict.update(get_target_encoding_dict(
+            X, y, col_labels=self.labels_to_target_encode))
         return self
 
     def transform(self, X, y=None):
@@ -149,11 +151,15 @@ class DataPreprocessor:
 
         return X, y
 
-    def fit_transform(self, X, y, use_min_max_scaling=False):
+    def fit_transform(self, X, y, drop_property_details=False, use_min_max_scaling=False):
         X, y = self.drop_outliers(X, y)
         self.ordinal_encoded_labels = ['property_type', 'subzone', 'planning_area',
                                        'tenure', 'furnishing', 'floor_level', 'address', 'property_name']
         self.ordinal_encoding_dict = {}
+        self.one_hot_encoded_labels = ['furnishing', 'floor_level']
+        self.target_encoded_labels = ['property_type', 'subzone', 'planning_area']
+        self.target_encoding_dict = {}
+
         self.col_names = []
 
         pipeline_steps = [
@@ -162,9 +168,9 @@ class DataPreprocessor:
             LatLngImputer(self.ordinal_encoding_dict, 'subzone',
                           auxiliary_subzone=self.auxiliary_subzone),
             LatLngImputer(self.ordinal_encoding_dict, 'planning_area'),
-            DataOneHotEncoder(self.ordinal_encoding_dict),
-            DataImputer(),
-            DataTargetEncoder(),
+            DataOneHotEncoder(self.one_hot_encoded_labels, self.ordinal_encoding_dict),
+            DataImputer(drop_property_details),
+            DataTargetEncoder(self.target_encoded_labels, self.target_encoding_dict),
             NanHandler(self.col_names),
         ]
 
@@ -182,6 +188,23 @@ class DataPreprocessor:
             X), columns=self.col_names)
         return X
 
+    def inverse_transform(self, X):
+        X_copy = X.copy()
+
+        for col in self.target_encoded_labels:
+            X_copy[col] = X_copy[col].map(reverse_dict(self.target_encoding_dict[col]))
+
+        for col in self.one_hot_encoded_labels:
+            one_hot_cols = list(i for i in X_copy.columns if col in i)
+            print(X_copy[one_hot_cols].idxmax(1))
+            X_copy[col] = X_copy[one_hot_cols].idxmax(1).apply(lambda k: k.split("_")[-1])
+            X_copy = remove_columns(X_copy, col_labels=one_hot_cols)
+
+        for col in self.ordinal_encoded_labels:
+            if col not in self.one_hot_encoded_labels:
+                X_copy[col] = X_copy[col].map(reverse_dict(self.ordinal_encoding_dict[col]))
+
+        return X_copy
 
 if __name__ == '__main__':
     trainX, trainY = read_csv('data/train.csv', ylabel='price')

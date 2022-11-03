@@ -36,7 +36,7 @@ for ele in Infralist:
     auxInfraDict[ele] = auxInfra
 
 data_preprocessor = DataPreprocessor(auxSubzone, auxInfraDict)
-trainX, trainY = data_preprocessor.fit_transform(trainX, trainY, use_min_max_scaling=True)
+trainX, trainY = data_preprocessor.fit_transform(trainX, trainY, drop_property_details=True, use_min_max_scaling=True)
 testX = data_preprocessor.transform(testX)
 col_names = list(trainX.columns)
 
