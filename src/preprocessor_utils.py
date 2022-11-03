@@ -4,15 +4,6 @@ import math
 
 from sklearn.neighbors import KNeighborsClassifier, NearestNeighbors, KernelDensity
 
-def read_csv(filename, ylabel=None):
-    df = pd.read_csv(filename)
-
-    if ylabel is not None:
-        dfY = df[ylabel]
-        dfX = df.drop([ylabel], axis=1)
-        return dfX, dfY
-    return df, None
-
 def remove_columns(df, col_labels=[]):
     df = df.drop(col_labels, axis=1)
     return df
@@ -263,16 +254,3 @@ def apply_lat_lng_knn(df, col_label, nan_index, knngraph):
     df[col_label] = target
 
     return df
-
-def create_k_fold_validation(X, Y, k=10):
-    chunk_size = len(X)//k
-    for ite in range(k):
-        trainX = np.concatenate((X[:ite*chunk_size], X[(ite+1)*chunk_size:]), axis=0)
-        trainY = np.concatenate((Y[:ite*chunk_size], Y[(ite+1)*chunk_size:]), axis=0)
-        valX = X[ite*chunk_size:(ite+1)*chunk_size]
-        valY = Y[ite*chunk_size:(ite+1)*chunk_size]
-
-        yield trainX, trainY, valX, valY
-
-def reverse_dict(inp_dict):
-    return {v:k for k, v in inp_dict.items()}

@@ -4,8 +4,12 @@ from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import MinMaxScaler
 
-from dataloader import append_auxiliary_data_infra, append_auxiliary_data_subzone, read_csv, remove_columns, convert_to_categorical, convert_to_lowercase, convert_to_onehot, get_ordinal_encoding_dict, reverse_dict
-from dataloader import extract_floor_level, extract_tenure, apply_lat_lng_knn, replace_corrupted_lat_lng, get_lat_lng_knn, apply_ordinal_encoding, get_target_encoding_dict, apply_target_encoding
+from src.utils import read_csv, reverse_dict
+
+from src.preprocessor_utils import remove_columns, convert_to_lowercase
+from src.preprocessor_utils import convert_to_categorical, convert_to_onehot, get_target_encoding_dict, apply_target_encoding
+from src.preprocessor_utils import extract_floor_level, extract_tenure, apply_lat_lng_knn, replace_corrupted_lat_lng, get_lat_lng_knn
+from src.preprocessor_utils import append_auxiliary_data_infra, append_auxiliary_data_subzone
 
 from sklearn.impute import KNNImputer
 
@@ -93,7 +97,7 @@ class DataImputer(BaseEstimator, TransformerMixin):
         cols = ['tenure']
         if self.drop_property_details:
             cols.extend(['address', 'property_name'])
-        
+
         X = remove_columns(X, cols)
 
         return X
@@ -151,8 +155,8 @@ class DataPreprocessor:
         self.auxiliary_subzone = auxiliary_subzone
         self.auxiliary_infrastructure_dict = auxiliary_infrastructure_dict
 
-    # Check outliers.ipynb for more details
     def drop_outliers(self, X, y):
+        # Check outliers.ipynb for more details
         index_list_to_remove = [14218, 15027, 5976, 4347, 16264, 2701, 18446, 663, 4287, 15637, 9750, 13461, 19587]
         index_list_to_remove.extend(X.index[~(
             (X['size_sqft'] > 300) & (X['size_sqft'] <= 30000))].tolist())
