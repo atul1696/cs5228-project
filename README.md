@@ -23,7 +23,7 @@ Things Left to Do -
 - [ ] Write Report : Data Preprocessing and EDA - Pritam, Atul, Prakhar
 - [ ] Final Kaggle Classification Pipeline and Comparing Various Algorithms : Part 1 - Pritam
 - [ ] Final Kaggle Classification Pipeline and Comparing Various Algorithms : Part 2 - Pritam
-- [ ] kNN, Cosine Similarity - Atul
+- [x] kNN, Cosine Similarity - Atul
 - [x] Add Auxiliary Data into Sklearn Pipeline - Atul
 - [ ] Weight features to allow customization for user - Prakhar
 - [x] Task 3 : Size, Num beds, etc. of Old vs New - Prakhar
