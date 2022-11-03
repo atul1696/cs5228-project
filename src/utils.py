@@ -1,8 +1,8 @@
 import csv
 import numpy as np
 import pandas as pd
+import json
 
-from pprint import pprint, pformat
 from tabulate import tabulate
 
 from sklearn.metrics import mean_squared_error, make_scorer
@@ -75,15 +75,23 @@ class GridSearchRegressor():
         rmse_table = tabulate(rmse_table_rows, headers=['Metric', 'Train', 'Validation'], tablefmt='github', floatfmt='.4f')
 
         base_regressor = self.gridsearch_regressor.best_estimator_.regressor_
-        feature_importance = dict(sorted(zip(col_names, base_regressor.feature_importances_)), key=lambda k: k[1], reverse=True)
+        feature_importance = dict(sorted(zip(col_names, base_regressor.feature_importances_), key=lambda k: k[1], reverse=True))
 
-        print('\n'.join([
-            'Best hyperparameters:',
-            f'{pformat(self.gridsearch_regressor.best_params_)}',
-            '',
-            'RMSE score metrics:',
-            f'{rmse_table}',
-            '',
-            'Feature importance:',
-            f'{pformat(feature_importance)}'
-        ]))
+        results_dict = {
+            'best_estimator_index': best_estimator_index,
+            'best_hyperparameters': self.gridsearch_regressor.best_params_,
+            'best_estimator_rmse_table': rmse_table,
+            'feature_importance': feature_importance,
+            'best_estimator_index': best_estimator_index,
+            'grid_search_results': grid_search_results
+        }
+
+        def numpy_encoder(obj):
+            if isinstance(obj, np.integer):
+                return int(obj)
+            elif isinstance(obj, np.floating):
+                return float(obj)
+            elif isinstance(obj, np.ndarray):
+                return obj.tolist()
+
+        print(json.dumps(results_dict, indent=4, default=numpy_encoder))
