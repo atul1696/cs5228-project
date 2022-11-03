@@ -35,7 +35,7 @@ trainX, trainY = shuffle(trainX, trainY, random_state=0)
 
 #################### Define Regressor and Training Setup ####################
 regressor_name = 'random_forest'
-gridsearch = False
+gridsearch = True
 
 if gridsearch:
     parameters = gridsearch_config[regressor_name]['parameters']
