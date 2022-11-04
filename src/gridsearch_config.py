@@ -42,7 +42,7 @@ parameters = {
     'regressor__loss': ['linear', 'square', 'exponential']
 }
 regressor = AdaBoostRegressor(base_estimator=gridsearch_config['decision_tree']['best_param_regressor'], random_state=0)
-best_param_regressor = AdaBoostRegressor(base_estimator=gridsearch_config['decision_tree']['best_param_regressor'], random_state=0)
+best_param_regressor = AdaBoostRegressor(base_estimator=gridsearch_config['decision_tree']['best_param_regressor'], random_state=0, n_estimators=50, learning_rate=0.1, loss='exponential')
 
 gridsearch_config[regressor_name] = {'parameters': parameters, 'regressor': regressor, 'best_param_regressor': best_param_regressor}
 #############################################################################
