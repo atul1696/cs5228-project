@@ -1,13 +1,15 @@
-from sklearn.metrics.pairwise import cosine_distances
-from sklearn.neighbors import NearestNeighbors
+import numpy as np
+from sklearn.metrics.pairwise import cosine_distances, euclidean_distances
 
-def top_k_cosine_distance(row, X, k=10):
-    distances = cosine_distances(row, X).flatten()
+def get_euclidean_distance(row, X):
+    distances = euclidean_distances(row, X).flatten()
+    return distances/distances.sum()
 
-    return distances.argsort()[:k]
+def get_recommendation_weights(row, X, distance_metric='euclidean'):
+    if distance_metric=='euclidean':
+        distances = get_euclidean_distance(row, X)
 
-def top_k_nearest_neighbors(row, X, k=10):
-    nearest_neighbors = NearestNeighbors(n_neighbors=k).fit(X)
-    distances, index_list = nearest_neighbors.kneighbors(row)
+    weights = np.exp(-distances)/np.exp(-distances).sum()
+    weights = weights/weights.sum()
 
-    return index_list.flatten()
+    return weights
