@@ -49,3 +49,15 @@ best_param_regressor = AdaBoostRegressor(base_estimator=estimator, random_state=
 
 gridsearch_config[regressor_name] = {'parameters': parameters, 'regressor': regressor, 'best_param_regressor': best_param_regressor}
 #############################################################################
+
+############################# Rigde Regressor ###############################
+regressor_name = 'ridge'
+parameters = {
+    'regressor__alpha': [0.1, 0.2, 0.5, 0.8, 1.0],
+    'regressor__solver': ['auto', 'svd', 'cholesky', 'lsqr', 'sparse_cg', 'sag', 'saga', 'lbfgs'],
+}
+regressor = Ridge(random_state=0)
+best_param_regressor = Ridge(random_state=0)
+
+gridsearch_config[regressor_name] = {'parameters': parameters, 'regressor': regressor, 'best_param_regressor': best_param_regressor}
+#############################################################################
