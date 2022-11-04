@@ -1,15 +1,27 @@
 import numpy as np
-from sklearn.metrics.pairwise import cosine_distances, euclidean_distances
 
-def get_euclidean_distance(row, X):
-    distances = euclidean_distances(row, X).flatten()
-    return distances/distances.sum()
+def get_recommendation_weights(row, X):
+    similarity_dict = {}
+    ## Are they in the same subzone?
+    similarity_dict['subzone'] = np.array(X['subzone']==row['subzone'])
 
-def get_recommendation_weights(row, X, distance_metric='euclidean'):
-    if distance_metric=='euclidean':
-        distances = get_euclidean_distance(row, X)
+    ## Are they in the same planning area? (Should probably be less importance than subzone)
+    similarity_dict['planning_area'] = 0.5*np.array(X['planning_area']==row['planning_area'])
 
-    weights = np.exp(-distances)/np.exp(-distances).sum()
-    weights = weights/weights.sum()
+    ## Are they in the same price bracket?
+    hist, bin_edges = np.histogram(X['price'], bins=100)
+    similarity_dict['price'] = np.digitize(X['price'], bin_edges) == np.digitize(row['price'], bin_edges)
+
+    ## Other Things we can try
+    ## Property Type
+    ## Time Left in Tenure
+    ## Num Beds
+    ## Size Sqft
+    ## Floor Level
+    ## Furnishing
+
+    weights = np.zeros(len(X))
+    for ele in similarity_dict:
+        weights = weights + similarity_dict[ele]
 
     return weights
