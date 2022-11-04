@@ -39,8 +39,9 @@ def rmse(Y_true, Y_pred):
 
 
 class GridSearchRegressor():
-    def __init__(self, regressor, parameters={}, k_fold=10):
+    def __init__(self, regressor_name, regressor, parameters={}, k_fold=10):
         self.k_fold = k_fold
+        self.regressor_name = regressor_name
         transformed_regressor = TransformedTargetRegressor(regressor, transformer=MinMaxScaler())
         scoring_fn = make_scorer(rmse, greater_is_better=False)
         self.gridsearch_regressor = GridSearchCV(transformed_regressor, param_grid=parameters, scoring=scoring_fn,
@@ -49,11 +50,11 @@ class GridSearchRegressor():
     def fit(self, trainX, trainY, col_names=[], print_results=False):
         self.gridsearch_regressor.fit(trainX, trainY)
         if print_results:
-            self.print_results(col_names)
+            self.print_results(col_names, is_mlp=self.regressor_name == 'mlp')
 
         return self.gridsearch_regressor.best_estimator_
 
-    def print_results(self, col_names):
+    def print_results(self, col_names, is_mlp=False):
         best_estimator_index = self.gridsearch_regressor.best_index_
         grid_search_results = self.gridsearch_regressor.cv_results_
 
@@ -75,16 +76,27 @@ class GridSearchRegressor():
         rmse_table = tabulate(rmse_table_rows, headers=['Metric', 'Train', 'Validation'], tablefmt='github', floatfmt='.4f')
 
         base_regressor = self.gridsearch_regressor.best_estimator_.regressor_
-        feature_importance = dict(sorted(zip(col_names, base_regressor.feature_importances_), key=lambda k: k[1], reverse=True))
 
         results_dict = {
             'best_estimator_index': best_estimator_index,
             'best_hyperparameters': self.gridsearch_regressor.best_params_,
             'best_estimator_rmse_table': rmse_table,
-            'feature_importance': feature_importance,
             'best_estimator_index': best_estimator_index,
             'grid_search_results': grid_search_results
         }
+
+        if is_mlp:
+            results_dict.update({
+                'iterations': base_regressor.n_iter_,
+                'loss_curve': base_regressor.loss_curve_,
+                'loss': base_regressor.loss_,
+                'best_loss': base_regressor.best_loss_,
+            })
+        else:
+            feature_importance = dict(sorted(zip(col_names, base_regressor.feature_importances_), key=lambda k: k[1], reverse=True))
+            results_dict.update({
+                'feature_importance': feature_importance
+            })
 
         def numpy_encoder(obj):
             if isinstance(obj, np.integer):

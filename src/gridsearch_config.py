@@ -58,3 +58,18 @@ best_param_regressor = Ridge(random_state=0)
 
 gridsearch_config[regressor_name] = {'parameters': parameters, 'regressor': regressor, 'best_param_regressor': best_param_regressor}
 #############################################################################
+
+############################## MLP Regressor ################################
+regressor_name = 'mlp'
+parameters = {
+    'regressor__hidden_layer_sizes': [(10,), (20,), (50,), (100,), (200,)],
+    'regressor__activation': ['identity', 'logistic', 'tanh', 'relu'],
+    'regressor__solver': ['lbfgs', 'sgd', 'adam'],
+    'regressor__alpha': [0.0001, 0.001, 0.01, 0.1],
+    'regressor__learning_rate': ['constant', 'invscaling', 'adaptive']
+}
+regressor = MLPRegressor(random_state=0)
+best_param_regressor = MLPRegressor(random_state=0)
+
+gridsearch_config[regressor_name] = {'parameters': parameters, 'regressor': regressor, 'best_param_regressor': best_param_regressor}
+#############################################################################
