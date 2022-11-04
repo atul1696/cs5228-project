@@ -20,17 +20,17 @@ Things Left to Do -
 - [x] Task 3 : Price of Old vs New - Prakhar
 
 ### Thursday
-- [ ] Write Report : Data Preprocessing and EDA - Pritam, Atul, Prakhar
-- [ ] Final Kaggle Classification Pipeline and Comparing Various Algorithms : Part 1 - Pritam
-- [ ] Final Kaggle Classification Pipeline and Comparing Various Algorithms : Part 2 - Pritam
+- [x] Final Kaggle Classification Pipeline and Comparing Various Algorithms : Part 1 - Pritam
 - [x] kNN, Cosine Similarity - Atul
 - [x] Add Auxiliary Data into Sklearn Pipeline - Atul
-- [ ] Weight features to allow customization for user - Prakhar
 - [x] Task 3 : Size, Num beds, etc. of Old vs New - Prakhar
 - [x] Task 3 : Condos vs HDB - Due to Foreigners; Tenure across time - Prakhar
 - [x] Task 3 : Which areas are being renovated? - Help LTA to make decisions like roads, MRT, etc. - Prakhar
 
 ### Friday
+- [ ] Weight features to allow customization for user - Prakhar
+- [ ] Final Kaggle Classification Pipeline and Comparing Various Algorithms : Part 2 - Pritam
+- [ ] Write Report : Data Preprocessing and EDA - Pritam, Atul, Prakhar
 - [ ] Write Report : Introduction and Motivation
 - [ ] Write Report : Evaluations and Interpretation
 
