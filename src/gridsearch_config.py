@@ -39,7 +39,7 @@ gridsearch_config[regressor_name] = {'parameters': parameters, 'regressor': regr
 ########################## AdaBoost Regressor ##########################
 regressor_name = 'ada_boost'
 parameters = {
-    'regressor__n_estimators': [100, 200, 500, 1000],
+    'regressor__n_estimators': [10, 50, 100, 200, 500],
     'regressor__learning_rate': [0.001, 0.01, 0.1, 0.5, 1],
     'regressor__loss': ['linear', 'square', 'exponential']
 }
