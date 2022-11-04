@@ -45,7 +45,7 @@ else:
     regressor = gridsearch_config[regressor_name]['best_param_regressor']
 
 k_fold = 10
-gridsearch_regressor = GridSearchRegressor(regressor, parameters, k_fold)
+gridsearch_regressor = GridSearchRegressor(regressor_name, regressor, parameters, k_fold)
 
 #################### Train Model and Submit Predictions ####################
 best_regressor = gridsearch_regressor.fit(trainX, trainY, col_names, print_results=True)
