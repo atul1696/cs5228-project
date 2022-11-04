@@ -62,11 +62,12 @@ gridsearch_config[regressor_name] = {'parameters': parameters, 'regressor': regr
 ############################## MLP Regressor ################################
 regressor_name = 'mlp'
 parameters = {
-    'regressor__hidden_layer_sizes': [(10,), (20,), (50,), (100,), (200,)],
+    'regressor__hidden_layer_sizes': [(10,), (20,), (50,), (100,), (200,), (10, 10), (20, 20), (50, 50), (10, 10, 10), (20, 20, 20)],
     'regressor__activation': ['identity', 'logistic', 'tanh', 'relu'],
     'regressor__solver': ['lbfgs', 'sgd', 'adam'],
     'regressor__alpha': [0.0001, 0.001, 0.01, 0.1],
-    'regressor__learning_rate': ['constant', 'invscaling', 'adaptive']
+    'regressor__learning_rate': ['constant', 'invscaling', 'adaptive'],
+    'regressor__learning_rate_init': [0.0001, 0.001, 0.01, 0.1]
 }
 regressor = MLPRegressor(random_state=0)
 best_param_regressor = MLPRegressor(random_state=0)
