@@ -208,11 +208,33 @@ class DataPreprocessor:
             X), columns=self.col_names)
         return X
 
+    def fit_transform_for_recommendations(self, X, y, drop_property_details=False):
+        X, y = self.drop_outliers(X, y)
+        self.ordinal_encoded_labels = ['property_type', 'subzone', 'planning_area',
+                                       'tenure', 'furnishing', 'floor_level', 'address', 'property_name']
+        self.ordinal_encoding_dict = {}
+        self.one_hot_encoded_labels = ['furnishing', 'floor_level']
+
+        pipeline_steps = [
+            DataTransformer(self.ordinal_encoded_labels,
+                            self.ordinal_encoding_dict, self.auxiliary_infrastructure_dict),
+            DataCleaner(),
+            LatLngImputer(self.ordinal_encoding_dict, 'subzone',
+                          auxiliary_subzone=self.auxiliary_subzone),
+            LatLngImputer(self.ordinal_encoding_dict, 'planning_area'),
+            DataOneHotEncoder(self.one_hot_encoded_labels, self.ordinal_encoding_dict),
+            DataImputer(drop_property_details)
+        ]
+
+        self.preprocessing_pipeline = make_pipeline(*pipeline_steps)
+
+        X = self.preprocessing_pipeline.fit_transform(X, y)
+        y = y.reset_index(drop=True)
+
+        return X, y
+
     def inverse_transform(self, X):
         X_copy = X.copy()
-
-        for col in self.target_encoded_labels:
-            X_copy[col] = X_copy[col].map(reverse_dict(self.target_encoding_dict[col]))
 
         for col in self.one_hot_encoded_labels:
             one_hot_cols = list(i for i in X_copy.columns if col in i)
