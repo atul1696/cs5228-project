@@ -1,6 +1,6 @@
 import numpy as np
 
-def get_recommendation_weights(row, X):
+def get_recommendation_weights(row, X, feature_weightage):
     similarity_dict = {}
     ## Are they in the same subzone?
     similarity_dict['subzone'] = np.array(X['subzone']==row['subzone'])
@@ -22,6 +22,6 @@ def get_recommendation_weights(row, X):
 
     weights = np.zeros(len(X))
     for ele in similarity_dict:
-        weights = weights + similarity_dict[ele]
+        weights = weights + feature_weightage[ele]*similarity_dict[ele]
 
     return weights
