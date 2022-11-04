@@ -24,14 +24,14 @@ gridsearch_config[regressor_name] = {'parameters': parameters, 'regressor': regr
 ########################## Decision Tree Regressor ##########################
 regressor_name = 'decision_tree'
 parameters = {
-    'regressor__max_depth': [5, 10, 15, 20, 50, 100, 200],
+    'regressor__max_depth': [None, 5, 10, 15, 20, 50, 100, 200],
     'regressor__min_samples_split': [2, 10, 20, 50, 100],
     'regressor__max_features': [None, 5, 10],
     'regressor__min_samples_leaf': [1, 3, 5, 10],
     'regressor__criterion': ['squared_error', 'friedman_mse', 'absolute_error', 'poisson']
 }
 regressor = DecisionTreeRegressor(random_state=0)
-best_param_regressor = DecisionTreeRegressor(random_state=0)
+best_param_regressor = DecisionTreeRegressor(random_state=0, max_depth=20, min_samples_split=2, max_features=10, min_samples_leaf=3, criterion='poisson')
 
 gridsearch_config[regressor_name] = {'parameters': parameters, 'regressor': regressor, 'best_param_regressor': best_param_regressor}
 #############################################################################
