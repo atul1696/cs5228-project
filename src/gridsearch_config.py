@@ -43,9 +43,8 @@ parameters = {
     'regressor__learning_rate': [0.001, 0.01, 0.1, 0.5, 1],
     'regressor__loss': ['linear', 'square', 'exponential']
 }
-estimator = DecisionTreeRegressor(random_state=0, criterion='poisson', max_depth=20, max_features=10, min_samples_leaf=3, min_samples_split=2)
-regressor = AdaBoostRegressor(base_estimator=estimator, random_state=0)
-best_param_regressor = AdaBoostRegressor(base_estimator=estimator, random_state=0)
+regressor = AdaBoostRegressor(base_estimator=gridsearch_config['decision_tree']['best_param_regressor'], random_state=0)
+best_param_regressor = AdaBoostRegressor(base_estimator=gridsearch_config['decision_tree']['best_param_regressor'], random_state=0)
 
 gridsearch_config[regressor_name] = {'parameters': parameters, 'regressor': regressor, 'best_param_regressor': best_param_regressor}
 #############################################################################
