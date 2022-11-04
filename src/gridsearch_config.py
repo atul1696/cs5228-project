@@ -13,10 +13,10 @@ parameters = {
     'regressor__max_depth': [5, 10, 15, 20, 50],
     'regressor__min_samples_split': [2, 10, 20, 50, 100],
 }
-regressor = RandomForestRegressor(random_state=0)
+regressor = RandomForestRegressor(random_state=0, n_jobs=-1)
 # Save the best regressor parameters manually once we are done with the grid search, so we don't need to repeat it for other experiments.
 # Currently just a copied default regressor
-best_param_regressor = RandomForestRegressor(random_state=0)
+best_param_regressor = RandomForestRegressor(random_state=0, n_jobs=-1, max_depth=20, min_samples_split=2, n_estimators=200)
 
 gridsearch_config[regressor_name] = {'parameters': parameters, 'regressor': regressor, 'best_param_regressor': best_param_regressor}
 #############################################################################
