@@ -47,14 +47,14 @@ best_param_regressor = AdaBoostRegressor(base_estimator=gridsearch_config['decis
 gridsearch_config[regressor_name] = {'parameters': parameters, 'regressor': regressor, 'best_param_regressor': best_param_regressor}
 #############################################################################
 
-############################# Rigde Regressor ###############################
+############################# Ridge Regressor ###############################
 regressor_name = 'ridge'
 parameters = {
     'regressor__alpha': [0.1, 0.2, 0.5, 0.8, 1.0, 2.0, 5.0, 10.0, 100.0],
     'regressor__solver': ['auto', 'svd', 'cholesky', 'lsqr', 'sparse_cg', 'sag', 'saga', 'lbfgs'],
 }
 regressor = Ridge(random_state=0)
-best_param_regressor = Ridge(random_state=0)
+best_param_regressor = Ridge(random_state=0, alpha=0.2, solver='sag')
 
 gridsearch_config[regressor_name] = {'parameters': parameters, 'regressor': regressor, 'best_param_regressor': best_param_regressor}
 #############################################################################
@@ -70,7 +70,7 @@ parameters = {
     'regressor__learning_rate_init': [0.0001, 0.001, 0.01, 0.1]
 }
 regressor = MLPRegressor(random_state=0)
-best_param_regressor = MLPRegressor(random_state=0)
+best_param_regressor = MLPRegressor(random_state=0, activation='relu', alpha=0.001, hidden_layer_sizes=(200,), learning_rate='constant', learning_rate_init=0.001, solver='adam')
 
 gridsearch_config[regressor_name] = {'parameters': parameters, 'regressor': regressor, 'best_param_regressor': best_param_regressor}
 #############################################################################
