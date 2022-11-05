@@ -50,11 +50,11 @@ class GridSearchRegressor():
     def fit(self, trainX, trainY, col_names=[], print_results=False):
         self.gridsearch_regressor.fit(trainX, trainY)
         if print_results:
-            self.print_results(col_names, is_mlp=self.regressor_name == 'mlp')
+            self.print_results(col_names, is_mlp=self.regressor_name == 'mlp', is_lasso=self.regressor_name == 'lasso')
 
         return self.gridsearch_regressor.best_estimator_
 
-    def print_results(self, col_names, is_mlp=False):
+    def print_results(self, col_names, is_mlp=False, is_lasso=False):
         best_estimator_index = self.gridsearch_regressor.best_index_
         grid_search_results = self.gridsearch_regressor.cv_results_
 
@@ -91,6 +91,11 @@ class GridSearchRegressor():
                 'loss_curve': base_regressor.loss_curve_,
                 'loss': base_regressor.loss_,
                 'best_loss': base_regressor.best_loss_,
+            })
+        elif is_lasso:
+            results_dict.update({
+                'iterations': base_regressor.n_iter_,
+                'number_of_features': base_regressor.n_features_in_
             })
         else:
             feature_importance = dict(sorted(zip(col_names, base_regressor.feature_importances_), key=lambda k: k[1], reverse=True))

@@ -83,7 +83,7 @@ parameters = {
     'regressor__max_iter': [200, 500, 1000, 2000, 5000]
 }
 regressor = Lasso(random_state=0)
-best_param_regressor = Lasso(random_state=0)
+best_param_regressor = Lasso(random_state=0, alpha=0.1, selection='cyclic', max_iter=200)
 
 gridsearch_config[regressor_name] = {'parameters': parameters, 'regressor': regressor, 'best_param_regressor': best_param_regressor}
 #############################################################################
