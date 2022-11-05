@@ -210,10 +210,9 @@ class DataPreprocessor:
 
     def fit_transform_for_recommendations(self, X, y, drop_property_details=False):
         X, y = self.drop_outliers(X, y)
-        self.ordinal_encoded_labels = ['property_type', 'subzone', 'planning_area',
-                                       'tenure', 'furnishing', 'floor_level', 'address', 'property_name']
+        self.ordinal_encoded_labels = ['subzone', 'planning_area']
         self.ordinal_encoding_dict = {}
-        self.one_hot_encoded_labels = ['furnishing', 'floor_level']
+        self.one_hot_encoded_labels = []
 
         pipeline_steps = [
             DataTransformer(self.ordinal_encoded_labels,
@@ -221,9 +220,7 @@ class DataPreprocessor:
             DataCleaner(),
             LatLngImputer(self.ordinal_encoding_dict, 'subzone',
                           auxiliary_subzone=self.auxiliary_subzone),
-            LatLngImputer(self.ordinal_encoding_dict, 'planning_area'),
-            DataOneHotEncoder(self.one_hot_encoded_labels, self.ordinal_encoding_dict),
-            DataImputer(drop_property_details)
+            LatLngImputer(self.ordinal_encoding_dict, 'planning_area')
         ]
 
         self.preprocessing_pipeline = make_pipeline(*pipeline_steps)

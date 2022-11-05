@@ -15,6 +15,9 @@ def get_recommendation_weights(row, X, feature_weightage):
     ## TODO : Maybe we can remove both subzone and planning area and replace it all with lat, lng distance
 
     ## Are they in the same price bracket?
+    print(np.max(X['price']))
+    print(np.min(X['price']))
+    print(X['price'].isnull().values.any())
     hist, bin_edges = np.histogram(X['price'], bins=100)
     similarity_dict['price'] = np.digitize(X['price'], bin_edges) == np.digitize(row['price'], bin_edges)
     ## TODO : Convert price difference from categorical to continuous
