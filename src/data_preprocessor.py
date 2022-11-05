@@ -40,6 +40,27 @@ class DataTransformer(BaseEstimator, TransformerMixin):
             X, self.labels_to_encode, self.ordinal_encoding_dict)
         return X
 
+class DataInverseTransformer(BaseEstimator, TransformerMixin):
+
+    def __init__(self, ordinal_encoded_labels, one_hot_encoded_labels, ordinal_encoding_dict):
+        self.ordinal_encoded_labels = ordinal_encoded_labels
+        self.ordinal_encoding_dict = ordinal_encoding_dict
+        self.one_hot_encoded_labels = one_hot_encoded_labels
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X, y=None):
+        for col in self.one_hot_encoded_labels:
+            one_hot_cols = list(i for i in X.columns if col in i)
+            X[col] = X[one_hot_cols].idxmax(1).apply(lambda k: k.split("_")[-1])
+            X = remove_columns(X, col_labels=one_hot_cols)
+
+        for col in self.ordinal_encoded_labels:
+            if col in X.columns and col not in self.one_hot_encoded_labels:
+                X[col] = X[col].map(reverse_dict(self.ordinal_encoding_dict[col]))
+        return X
+
 class DataCleaner(BaseEstimator, TransformerMixin):
 
     def fit(self, X, y=None):
@@ -220,29 +241,17 @@ class DataPreprocessor:
             DataCleaner(),
             LatLngImputer(self.ordinal_encoding_dict, 'subzone',
                           auxiliary_subzone=self.auxiliary_subzone),
-            LatLngImputer(self.ordinal_encoding_dict, 'planning_area')
+            LatLngImputer(self.ordinal_encoding_dict, 'planning_area'),
+            DataInverseTransformer(self.ordinal_encoded_labels, self.one_hot_encoded_labels,
+                                  self.ordinal_encoding_dict)
         ]
 
         self.preprocessing_pipeline = make_pipeline(*pipeline_steps)
 
-        X = self.preprocessing_pipeline.fit_transform(X, y)
+        X = self.preprocessing_pipeline.fit_transform(X, y).reset_index(drop=True)
         y = y.reset_index(drop=True)
 
         return X, y
-
-    def inverse_transform(self, X):
-        X_copy = X.copy()
-
-        for col in self.one_hot_encoded_labels:
-            one_hot_cols = list(i for i in X_copy.columns if col in i)
-            X_copy[col] = X_copy[one_hot_cols].idxmax(1).apply(lambda k: k.split("_")[-1])
-            X_copy = remove_columns(X_copy, col_labels=one_hot_cols)
-
-        for col in self.ordinal_encoded_labels:
-            if col in X.columns and col not in self.one_hot_encoded_labels:
-                X_copy[col] = X_copy[col].map(reverse_dict(self.ordinal_encoding_dict[col]))
-
-        return X_copy
 
 
 if __name__ == '__main__':
