@@ -1,6 +1,6 @@
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.ensemble import RandomForestRegressor, AdaBoostRegressor
-from sklearn.linear_model import LinearRegression, Ridge
+from sklearn.linear_model import LinearRegression, Ridge, Lasso
 from sklearn.dummy import DummyRegressor
 from sklearn.neural_network import MLPRegressor
 
@@ -71,6 +71,19 @@ parameters = {
 }
 regressor = MLPRegressor(random_state=0)
 best_param_regressor = MLPRegressor(random_state=0, activation='relu', alpha=0.001, hidden_layer_sizes=(200,), learning_rate='constant', learning_rate_init=0.001, solver='adam')
+
+gridsearch_config[regressor_name] = {'parameters': parameters, 'regressor': regressor, 'best_param_regressor': best_param_regressor}
+#############################################################################
+
+############################## Lasso Regressor ################################
+regressor_name = 'lasso'
+parameters = {
+    'regressor__alpha': [0.1, 0.2, 0.5, 0.8, 1.0, 2.0, 5.0, 10.0, 100.0],
+    'regressor__selection': ['cyclic', 'random'],
+    'regressor__max_iter': [200, 500, 1000, 2000, 5000]
+}
+regressor = Lasso(random_state=0)
+best_param_regressor = Lasso(random_state=0)
 
 gridsearch_config[regressor_name] = {'parameters': parameters, 'regressor': regressor, 'best_param_regressor': best_param_regressor}
 #############################################################################
