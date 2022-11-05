@@ -150,7 +150,7 @@ def extract_tenure(df):
         if "freehold" in inp_str:
             return 10000
         else:
-            return inp_str.split("-")[0]
+            return float(inp_str.split("-")[0])
 
     df['tenure_duration'] = df['tenure'].apply(lambda x: remove_additional_info(x))
     df['is_freehold'] = (df['tenure'].str.contains("freehold")) & (~df['tenure'].isna())

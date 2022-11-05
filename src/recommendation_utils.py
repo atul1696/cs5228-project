@@ -9,7 +9,6 @@ def get_recommendation_weights(row, X, feature_weightage):
 
     ## Are they in the same planning area? (Should probably be less importance than subzone)
     similarity_dict['planning_area'] = 0.5*np.array(X['planning_area']==row['planning_area'])
-    ## TODO : Maybe we can remove both subzone and planning area and replace it all with lat, lng distance
 
     ## Are they in the same price bracket?
     price_distance_sq = (X['price'] - row['price'])**2
@@ -19,15 +18,28 @@ def get_recommendation_weights(row, X, feature_weightage):
     ## Do they have the same property type?
     similarity_dict['property_type'] = np.array(X['property_type']==row['property_type'])
 
-    ## Do they have the same number of beds?
-    similarity_dict['num_beds'] = np.array(X['num_beds']==row['num_beds'])
-    ## TODO : What about properties with higher num_beds? Does adding them helps?
+    ## Do they have the same or more number of beds?
+    if isinstance(row['num_beds'], float) and math.isnan(row['num_beds']):
+        similarity_dict['num_beds'] = 0
+    else:
+        num_beds_distance = np.nan_to_num(X['num_beds']) - row['num_beds']
+        num_beds_distance_sq = num_beds_distance**2
+        num_beds_sigma = 2
+        num_beds_score = np.exp(-num_beds_distance_sq/(2*(num_beds_sigma**2)))
+        similarity_dict['num_beds'] = np.select(condlist=[num_beds_distance >= 0, num_beds_distance<0], choicelist=[num_beds_score, num_beds_score-1])
 
-    ## Are they in the same size bracket?
-    size_sqft_distance_sq = (X['size_sqft'] - row['size_sqft'])**2
-    size_sqft_sigma = 1e3
-    similarity_dict['size_sqft'] = np.exp(-size_sqft_distance_sq/(2*(size_sqft_sigma**2)))
-    ## TODO : Add another feature for 'price per square foot'
+    ## Do they have the same baths bracket?
+    if isinstance(row['num_baths'], float) and math.isnan(row['num_baths']):
+        similarity_dict['num_baths'] = 0
+    else:
+        num_baths_distance_sq = (np.nan_to_num(X['num_baths']) - row['num_baths'])**2
+        num_baths_sigma = 1
+        similarity_dict['num_baths'] = np.exp(-num_baths_distance_sq/(2*(num_baths_sigma**2)))
+
+    ## Are they in the same price per size sqft bracket?
+    price_per_sqft_distance_sq = (X['price_per_sqft'] - row['price_per_sqft'])**2
+    price_per_sqft_sigma = 1e3
+    similarity_dict['price_per_sqft'] = np.exp(-price_per_sqft_distance_sq/(2*(price_per_sqft_sigma**2)))
 
     ## Do they have the same floor level?
     if isinstance(row['floor_level'], float) and math.isnan(row['floor_level']):
@@ -42,18 +54,15 @@ def get_recommendation_weights(row, X, feature_weightage):
         similarity_dict['furnishing'] = np.array(X['furnishing']==row['furnishing'])
 
     ## How much time is left in the tenure?
-    tenure_left_X = X['tenure_duration'].astype(float) - (2022 - X['built_year'].astype(float))
-    tenure_left_row = float(row['tenure_duration']) - (2022 - float(row['built_year']))
-    if isinstance(tenure_left_row, float) and math.isnan(tenure_left_row):
+    if isinstance(row['tenure_left'], float) and math.isnan(row['tenure_left']):
         similarity_dict['tenure_left'] = 0
     else:
-        tenure_left_distance_sq = (tenure_left_X - tenure_left_row)**2
+        tenure_left_distance_sq = (np.nan_to_num(X['tenure_left']) - row['tenure_left'])**2
         tenure_left_sigma = 1e3
         similarity_dict['tenure_left'] = np.exp(-tenure_left_distance_sq/(2*(tenure_left_sigma**2)))
-        similarity_dict['tenure_left'] = np.nan_to_num(similarity_dict['tenure_left'], nan=0)
 
     weights = np.zeros(len(X))
     for ele in similarity_dict:
-        weights = weights + feature_weightage[ele]*similarity_dict[ele]
+        weights = weights + feature_weightage.get(ele, 0) * similarity_dict[ele]
 
     return weights

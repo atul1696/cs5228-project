@@ -1,4 +1,5 @@
 import numpy as np
+import math
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.pipeline import make_pipeline
@@ -169,6 +170,23 @@ class NanHandler(BaseEstimator, TransformerMixin):
     def transform(self, X, y=None):
         return X.fillna(self.mean_values)
 
+class FeatureGenerator(BaseEstimator, TransformerMixin):
+
+    def fit(self, X, y=None):
+        return self
+
+    def calculate_remaining_tenure(self, row):
+        if not (isinstance(row['tenure_duration'], float) and math.isnan(row['tenure_duration'])):
+            if row['built_year'] <= 2022:
+                return (row['tenure_duration'] - (2022 - row['built_year']))
+
+        return row['tenure_duration']
+
+    def fit_transform(self, X, y=None):
+        X['tenure_left'] = X.apply(self.calculate_remaining_tenure, axis=1)
+        X['price_per_sqft'] = y / X['size_sqft']
+        return X
+
 
 class DataPreprocessor:
 
@@ -243,7 +261,8 @@ class DataPreprocessor:
                           auxiliary_subzone=self.auxiliary_subzone),
             LatLngImputer(self.ordinal_encoding_dict, 'planning_area'),
             DataInverseTransformer(self.ordinal_encoded_labels, self.one_hot_encoded_labels,
-                                  self.ordinal_encoding_dict)
+                                  self.ordinal_encoding_dict),
+            FeatureGenerator()
         ]
 
         self.preprocessing_pipeline = make_pipeline(*pipeline_steps)
