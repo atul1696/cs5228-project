@@ -12,9 +12,9 @@ def get_recommendation_weights(row, X, feature_weightage):
     ## TODO : Maybe we can remove both subzone and planning area and replace it all with lat, lng distance
 
     ## Are they in the same price bracket?
-    price_distance = abs(X['price'] - row['price'])
-    price_sigma = 5e3
-    similarity_dict['price'] = np.exp(-price_distance/(2*(price_sigma**2)))
+    price_distance_sq = (X['price'] - row['price'])**2
+    price_sigma = 1e7
+    similarity_dict['price'] = np.exp(-price_distance_sq/(2*(price_sigma**2)))
 
     ## Do they have the same property type?
     similarity_dict['property_type'] = np.array(X['property_type']==row['property_type'])
@@ -24,9 +24,9 @@ def get_recommendation_weights(row, X, feature_weightage):
     ## TODO : What about properties with higher num_beds? Does adding them helps?
 
     ## Are they in the same size bracket?
-    size_sqft_distance = abs(X['size_sqft'] - row['size_sqft'])
-    size_sqft_sigma = 5e1
-    similarity_dict['size_sqft'] = np.exp(-size_sqft_distance/(2*(size_sqft_sigma**2)))
+    size_sqft_distance_sq = (X['size_sqft'] - row['size_sqft'])**2
+    size_sqft_sigma = 1e3
+    similarity_dict['size_sqft'] = np.exp(-size_sqft_distance_sq/(2*(size_sqft_sigma**2)))
     ## TODO : Add another feature for 'price per square foot'
 
     ## Do they have the same floor level?
@@ -47,9 +47,9 @@ def get_recommendation_weights(row, X, feature_weightage):
     if isinstance(tenure_left_row, float) and math.isnan(tenure_left_row):
         similarity_dict['tenure_left'] = 0
     else:
-        tenure_left_distance = abs(tenure_left_X - tenure_left_row)
-        tenure_left_sigma = 5e1
-        similarity_dict['tenure_left'] = np.exp(-tenure_left_distance/(2*(tenure_left_sigma**2)))
+        tenure_left_distance_sq = (tenure_left_X - tenure_left_row)**2
+        tenure_left_sigma = 1e3
+        similarity_dict['tenure_left'] = np.exp(-tenure_left_distance_sq/(2*(tenure_left_sigma**2)))
         similarity_dict['tenure_left'] = np.nan_to_num(similarity_dict['tenure_left'], nan=0)
 
     weights = np.zeros(len(X))
