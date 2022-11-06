@@ -203,7 +203,7 @@ class DataPreprocessor:
 
         return X, y
 
-    def fit_transform_for_regression(self, X, y):
+    def fit_transform_for_regression(self, X, y, use_min_max_scaling=True):
         X, y = self.drop_outliers(X, y)
         self.ordinal_encoded_labels = ['property_type', 'subzone', 'planning_area',
                                        'tenure', 'furnishing', 'floor_level', 'address', 'property_name']
@@ -225,8 +225,10 @@ class DataPreprocessor:
             DataImputer(),
             DataTargetEncoder(self.target_encoded_labels, self.target_encoding_dict),
             NanHandler(self.col_names),
-            MinMaxScaler()
         ]
+
+        if use_min_max_scaling:
+            pipeline_steps.append(MinMaxScaler())
 
         self.preprocessing_pipeline = make_pipeline(*pipeline_steps)
 
