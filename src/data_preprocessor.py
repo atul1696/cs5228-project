@@ -100,10 +100,9 @@ class LatLngImputer(BaseEstimator, TransformerMixin):
 
 
 class DataImputer(BaseEstimator, TransformerMixin):
-    def __init__(self, drop_property_details, knn_neighbors=7):
+    def __init__(self, knn_neighbors=7):
         self.knn_imputer = KNNImputer(
             n_neighbors=knn_neighbors, weights='distance')
-        self.drop_property_details = drop_property_details
 
     def fit(self, X, y=None):
         self.knn_imputer.fit(X)
@@ -116,10 +115,7 @@ class DataImputer(BaseEstimator, TransformerMixin):
         for col in labels_to_round_off:
             X[col] = X[col].apply(np.round)
 
-        cols = ['tenure']
-        if self.drop_property_details:
-            cols.extend(['address', 'property_name'])
-
+        cols = ['tenure', 'address', 'property_name']
         X = remove_columns(X, cols)
 
         return X
@@ -207,7 +203,7 @@ class DataPreprocessor:
 
         return X, y
 
-    def fit_transform(self, X, y, drop_property_details=False, use_min_max_scaling=False):
+    def fit_transform_for_regression(self, X, y):
         X, y = self.drop_outliers(X, y)
         self.ordinal_encoded_labels = ['property_type', 'subzone', 'planning_area',
                                        'tenure', 'furnishing', 'floor_level', 'address', 'property_name']
@@ -226,13 +222,11 @@ class DataPreprocessor:
                           auxiliary_subzone=self.auxiliary_subzone),
             LatLngImputer(self.ordinal_encoding_dict, 'planning_area'),
             DataOneHotEncoder(self.one_hot_encoded_labels, self.ordinal_encoding_dict),
-            DataImputer(drop_property_details),
+            DataImputer(),
             DataTargetEncoder(self.target_encoded_labels, self.target_encoding_dict),
             NanHandler(self.col_names),
+            MinMaxScaler()
         ]
-
-        if use_min_max_scaling:
-            pipeline_steps.append(MinMaxScaler())
 
         self.preprocessing_pipeline = make_pipeline(*pipeline_steps)
 
@@ -242,12 +236,12 @@ class DataPreprocessor:
 
         return X, y
 
-    def transform(self, X):
+    def transform_for_regression(self, X):
         X = pd.DataFrame(self.preprocessing_pipeline.transform(
             X), columns=self.col_names)
         return X
 
-    def fit_transform_for_recommendations(self, X, y, drop_property_details=False):
+    def fit_transform_for_recommendations(self, X, y):
         X, y = self.drop_outliers(X, y)
         self.ordinal_encoded_labels = ['subzone', 'planning_area']
         self.ordinal_encoding_dict = {}
@@ -284,7 +278,7 @@ if __name__ == '__main__':
         auxInfra, _ = read_csv('data/auxiliary-data/' + ele + '.csv')
     auxInfraDict[ele] = auxInfra
     dt_prep = DataPreprocessor(auxSubzone, auxInfraDict)
-    trainX, trainY = dt_prep.fit_transform(trainX, trainY, drop_property_details=False)
+    trainX, trainY = dt_prep.fit_transform_for_regression(trainX, trainY)
     print(trainX.isna().sum())
     print(trainX.shape)
     print(trainY.isna().sum())

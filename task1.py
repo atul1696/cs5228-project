@@ -23,8 +23,8 @@ for ele in Infralist:
 
 ###################### Data Cleaning and Preprocessing ######################
 data_preprocessor = DataPreprocessor(auxSubzone, auxInfraDict)
-trainX, trainY = data_preprocessor.fit_transform(trainX, trainY, drop_property_details=True, use_min_max_scaling=True)
-testX = data_preprocessor.transform(testX)
+trainX, trainY = data_preprocessor.fit_transform_for_regression(trainX, trainY)
+testX = data_preprocessor.transform_for_regression(testX)
 col_names = list(trainX.columns)
 
 
