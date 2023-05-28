@@ -1,42 +1,14 @@
-# cs5228-project
-CS5228 : Semester Project
+# CS5228 Knowledge Discovery and Data Mining: Project
 
-Things Left to Do -
+# Task 1: Prediction of Property Resale Prices
+Given the information about a property (e.g., size, #rooms, location), predict its price using regression.
 
-### Tuesday
-- [x] Reason Behind Removing Outliers - Atul
-- [x] Property Type Target Encoding Grouping : Make it More Thorough - Prakhar
-- [x] Final Sanity Pass Through Data Preprocessing (With Proper Explanation for Each Choice) - Pritam
-- [x] Final Sanity Pass Through Data Preprocessing (With Proper Explanation for Each Choice) - Atul
-- [x] Final Sanity Pass Through Data Preprocessing (With Proper Explanation for Each Choice) - Prakhar
-- [x] Use Auxiliary Data to Improve Classification - Prakhar
-- [x] Switch to Sklearn Pipeline - Atul
-- [x] Recommendation System Baseline Method : Literature Search - Pritam
+# Task 2: Property Recommendations
+Given the information about a property a user is interested in, find ”meaningful” alternatives that can be shown to the users in the form of recom- mendations.
 
-### Wednesday
-- [x] Improve the Usage of Auxiliary Data (For eg, Use 'Density' instead of 'Nearest') - Prakhar
-- [x] Recommendation System Baseline Method : Literature Search - Atul, Pritam
-- [x] Define Task 3 - Prakhar
-- [x] Task 3 : Price of Old vs New - Prakhar
+# Task 3: Open task
+Explore the nuances of changing real estate development in Singapore over time.
 
-### Thursday
-- [x] Final Kaggle Classification Pipeline and Comparing Various Algorithms : Part 1 - Pritam
-- [x] kNN, Cosine Similarity - Atul
-- [x] Add Auxiliary Data into Sklearn Pipeline - Atul
-- [x] Task 3 : Size, Num beds, etc. of Old vs New - Prakhar
-- [x] Task 3 : Condos vs HDB - Due to Foreigners; Tenure across time - Prakhar
-- [x] Task 3 : Which areas are being renovated? - Help LTA to make decisions like roads, MRT, etc. - Prakhar
 
-### Friday
-- [ ] Weight features to allow customization for user - Prakhar
-- [ ] Final Kaggle Classification Pipeline and Comparing Various Algorithms : Part 2 - Pritam
-- [ ] Write Report : Data Preprocessing and EDA - Pritam, Atul, Prakhar
-- [ ] Write Report : Introduction and Motivation
-- [ ] Write Report : Evaluations and Interpretation
 
-### Saturday
-- [ ] Write Report : Complete Report
-- [ ] Readable Version of Codebase
-- [ ] Submit Everything
 
-### Sunday
